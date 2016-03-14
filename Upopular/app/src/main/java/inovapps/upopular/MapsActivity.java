@@ -14,6 +14,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -105,6 +106,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        try{
+            mMap.setMyLocationEnabled(true);
+        }catch (SecurityException e){
+
+        }
+
 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
@@ -122,9 +129,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 View v = getLayoutInflater().inflate(R.layout.info_window, null);
 
                 // Getting the position from the marker
-                String id = arg0.getSnippet();
-                if(upasList.get(id)!=null){
-                    String[] upaInfo = upasList.get(id);
+                String kind = arg0.getTitle();
+                if(kind.equals("upa")){
+                    String[] upaInfo = upasList.get(arg0.getSnippet());
 
                     // Getting reference to the TextView to set latitude
                     TextView title = (TextView) v.findViewById(R.id.tv_title);
@@ -137,12 +144,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
                     subtitle2.setText(upaInfo[4] + ", " + upaInfo[5]);
                 }
-                if(fpbList.get(id)!=null){
-                    String[] fpbInfo = fpbList.get(id);
+                if(kind.equals("fpb")){
+                    String[] fpbInfo = fpbList.get(arg0.getSnippet());
 
                     // Getting reference to the TextView to set latitude
                     TextView title = (TextView) v.findViewById(R.id.tv_title);
-                    title.setVisibility(View.GONE);
+                    title.setText("FÁRMACIA POPULAR DO BRASIL");
                     // Getting reference to the TextView to set longitude
                     TextView subtitle1 = (TextView) v.findViewById(R.id.tv_subtitle1);
                     subtitle1.setText(fpbInfo[0]);
@@ -150,6 +157,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Getting reference to the TextView to set longitude
                     TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
                     subtitle2.setText(fpbInfo[1] + ", " + fpbInfo[2]);
+                }
+
+                if(kind.equals("fpe")){
+                    String[] fpeInfo = fpeList.get(arg0.getSnippet());
+
+                    // Getting reference to the TextView to set latitude
+                    TextView title = (TextView) v.findViewById(R.id.tv_title);
+                    title.setText(fpeInfo[0]);
+                    // Getting reference to the TextView to set longitude
+                    TextView subtitle1 = (TextView) v.findViewById(R.id.tv_subtitle1);
+                    subtitle1.setText(fpeInfo[1]);
+
+                    // Getting reference to the TextView to set longitude
+                    TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
+                    subtitle2.setText(fpeInfo[2] + ", " + fpeInfo[3]);
                 }
 
 
@@ -169,11 +191,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(!upaId.equals("gid")){
                 String [] latLng = upasLatLngList.get(upaId);
 
-                Log.d("upa", latLng[0] + latLng[1]);
+               // Log.d("upa", latLng[0] + latLng[1]);
                 LatLng upaLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
                 mMap.addMarker(new MarkerOptions()
+                        .title("upa")
                         .position(upaLatLong)
-                        .snippet(upaId));
+                        .snippet(upaId)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(upaLatLong));
             }
         }
@@ -184,14 +208,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(!fpbId.equals("gid")){
                 String [] latLng = fpbLatLngList.get(fpbId);
 
-                Log.d("fpb", latLng[0] + latLng[1]);
+               // Log.d("fpb", latLng[0] + latLng[1]);
                 LatLng fpbLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
                 mMap.addMarker(new MarkerOptions()
+                        .title("fpb")
                         .position(fpbLatLong)
-                        .snippet(fpbId));
+                        .snippet(fpbId)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(fpbLatLong));
             }
         }
+
+//        for(Entry<String, String[]> entry : fpeList.entrySet()) {
+//            String fpeId = entry.getKey();
+//
+//            if(!fpeId.equals("id")){
+//                String [] latLng = fpeLatLngList.get(fpeId);
+//
+//                Log.d("fpe", latLng[0] + latLng[1]);
+//                LatLng fpeLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
+//                mMap.addMarker(new MarkerOptions()
+//                        .title("fpe")
+//                        .position(fpeLatLong)
+//                        .snippet(fpeId)
+//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLng(fpeLatLong));
+//            }
+//        }
 
 
     }
