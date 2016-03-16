@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="lightGrey">#b6b6b6</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="textview_business_description">#7f7f7f</color>
+
 </resources>
