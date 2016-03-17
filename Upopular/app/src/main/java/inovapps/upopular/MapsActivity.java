@@ -2,8 +2,10 @@ package inovapps.upopular;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.InputStream;
@@ -31,6 +33,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private HashMap<String, String[]> fpeLatLngList;
     private HashMap<String, String[]> fpeList;
     private HashMap<String, String[]> fpeDetailsList;
+    private boolean upaSelected;
+    private boolean fpbSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,7 +188,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-
+        upaSelected = true;
         for(Entry<String, String[]> entry : upasList.entrySet()) {
             String upaId = entry.getKey();
 
@@ -202,6 +206,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
 
+        fpbSelected = true;
         for(Entry<String, String[]> entry : fpbList.entrySet()) {
             String fpbId = entry.getKey();
 
@@ -239,5 +244,116 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    public void getUPA(View button){
+        Button buttonClicked = (Button) button;
+
+        if(upaSelected){
+            buttonClicked.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
+            buttonClicked.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(this, R.drawable.ic_local_hospital_blue_24dp), null, null, null);
+            buttonClicked.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+
+            mMap.clear();
+            if(fpbSelected){
+                for(Entry<String, String[]> entry : fpbList.entrySet()) {
+                    String fpbId = entry.getKey();
+
+                    if(!fpbId.equals("gid")){
+                        String [] latLng = fpbLatLngList.get(fpbId);
+
+                        // Log.d("fpb", latLng[0] + latLng[1]);
+                        LatLng fpbLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
+                        mMap.addMarker(new MarkerOptions()
+                                .title("fpb")
+                                .position(fpbLatLong)
+                                .snippet(fpbId)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    }
+                }
+            }
+
+        }else{
+            buttonClicked.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
+            buttonClicked.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(this, R.drawable.ic_local_hospital_white_24dp), null, null, null);
+            buttonClicked.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+            for(Entry<String, String[]> entry : upasList.entrySet()) {
+                String upaId = entry.getKey();
+
+                if(!upaId.equals("gid")){
+                    String [] latLng = upasLatLngList.get(upaId);
+
+                    // Log.d("upa", latLng[0] + latLng[1]);
+                    LatLng upaLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
+                    mMap.addMarker(new MarkerOptions()
+                            .title("upa")
+                            .position(upaLatLong)
+                            .snippet(upaId)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                }
+            }
+
+        }
+
+
+
+        upaSelected = (!upaSelected);
+
+
+    }
+
+    public void getFPB(View button){
+        Button buttonClicked = (Button) button;
+
+        if(fpbSelected){
+            buttonClicked.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
+            buttonClicked.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(this, R.drawable.ic_local_pharmacy_blue_24dp), null, null, null);
+            buttonClicked.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+
+            mMap.clear();
+
+            if(upaSelected){
+                for(Entry<String, String[]> entry : upasList.entrySet()) {
+                    String upaId = entry.getKey();
+
+                    if(!upaId.equals("gid")){
+                        String [] latLng = upasLatLngList.get(upaId);
+
+                        // Log.d("upa", latLng[0] + latLng[1]);
+                        LatLng upaLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
+                        mMap.addMarker(new MarkerOptions()
+                                .title("upa")
+                                .position(upaLatLong)
+                                .snippet(upaId)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    }
+                }
+            }
+
+
+                }else{
+            buttonClicked.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
+            buttonClicked.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(this, R.drawable.ic_local_pharmacy_white_24dp), null, null, null);
+            buttonClicked.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+            for(Entry<String, String[]> entry : fpbList.entrySet()) {
+                String fpbId = entry.getKey();
+
+                if(!fpbId.equals("gid")){
+                    String [] latLng = fpbLatLngList.get(fpbId);
+
+                    // Log.d("fpb", latLng[0] + latLng[1]);
+                    LatLng fpbLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
+                    mMap.addMarker(new MarkerOptions()
+                            .title("fpb")
+                            .position(fpbLatLong)
+                            .snippet(fpbId)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                }
+            }
+        }
+
+        fpbSelected = (!fpbSelected);
+
+    }
 
 }

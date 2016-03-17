@@ -31,10 +31,11 @@ tools:context="inovapps.upopular.MapsActivity" >
         android:text="UPA"
         android:background="@color/colorPrimary"
         android:textColor="@color/white"
-        android:drawableLeft="@drawable/ic_local_hospital_black_24dp"
+        android:drawableLeft="@drawable/ic_local_hospital_white_24dp"
         android:paddingLeft="60dp"
         android:paddingRight="60dp"
         android:layout_weight="1"
+        android:onClick="getUPA"
         />
     <View
         android:layout_width="1dip"
@@ -46,13 +47,14 @@ tools:context="inovapps.upopular.MapsActivity" >
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:gravity="center_horizontal|center_vertical"
-        android:drawableLeft="@drawable/ic_local_pharmacy_black_24dp"
+        android:drawableLeft="@drawable/ic_local_pharmacy_white_24dp"
         android:paddingLeft="30dp"
         android:paddingRight="30dp"
         android:text="Farmácia Popular"
         android:background="@color/colorPrimary"
         android:textColor="@color/white"
         android:layout_weight="1"
+        android:onClick="getFPB"
          />
 
 
