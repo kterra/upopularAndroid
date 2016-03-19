@@ -8,10 +8,81 @@
     tools:context="inovapps.upopular.UPADetailsActivity"
     tools:showIn="@layout/activity_upadetails">
 
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:orientation="vertical">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
-        android:text="@string/large_text" />
+        android:textSize="@dimen/title_size"
+        android:textColor="@color/black"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/upa_title" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="15dp"
+        android:textSize="@dimen/content_size"
+        android:textColor="@color/black"
+        android:text="@string/upa_street" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginBottom="10dp"
+        android:textSize="@dimen/content_size"
+        android:textColor="@color/black"
+        android:text="@string/upa_district" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginBottom="10dp"
+        android:textSize="@dimen/content_size"
+        android:textColor="@color/black"
+        android:text="@string/upa_city" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginBottom="10dp"
+        android:textSize="@dimen/content_size"
+        android:textColor="@color/black"
+        android:text="@string/upa_state" />
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/text_margin"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/content_size"
+                android:text="@string/upa_porte"
+                android:textColor="@color/black"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:src="@drawable/ic_info_outline_black_24dp"
+                android:clickable="true"
+                />
+
+        </android.support.v7.widget.LinearLayoutCompat>
+
+
+
+    </android.support.v7.widget.LinearLayoutCompat>
 </android.support.v4.widget.NestedScrollView>
