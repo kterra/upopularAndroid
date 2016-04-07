@@ -1,13 +1,13 @@
 package inovapps.upopular;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -15,6 +15,7 @@ import java.util.Map.*;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -42,14 +43,26 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+
+
         readUPAData();
-        readFPBData();
-        readFPEData();
+        //readFPBData();
+        //readFPEData();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        View mapView = (mapFragment.getFragmentManager().findFragmentById(R.id.map)).getView();
+        View btnMyLocation = ((View) mapView.findViewById(1).getParent()).findViewById(2);
+
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80,80); // size of button in dp
+        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        params.setMargins(0, 0, 20, 150);
+        btnMyLocation.setLayoutParams(params);
+
+
     }
 
     private void readUPAData(){
@@ -107,6 +120,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
+
 
 
         mMap = googleMap;
@@ -207,24 +222,24 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(upaLatLong));
             }
         }
-
-        fpbSelected = true;
-        for(Entry<String, String[]> entry : fpbList.entrySet()) {
-            String fpbId = entry.getKey();
-
-            if(!fpbId.equals("gid")){
-                String [] latLng = fpbLatLngList.get(fpbId);
-
-               // Log.d("fpb", latLng[0] + latLng[1]);
-                LatLng fpbLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
-                mMap.addMarker(new MarkerOptions()
-                        .title("fpb")
-                        .position(fpbLatLong)
-                        .snippet(fpbId)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(fpbLatLong));
-            }
-        }
+//
+//        fpbSelected = true;
+//        for(Entry<String, String[]> entry : fpbList.entrySet()) {
+//            String fpbId = entry.getKey();
+//
+//            if(!fpbId.equals("gid")){
+//                String [] latLng = fpbLatLngList.get(fpbId);
+//
+//               // Log.d("fpb", latLng[0] + latLng[1]);
+//                LatLng fpbLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
+//                mMap.addMarker(new MarkerOptions()
+//                        .title("fpb")
+//                        .position(fpbLatLong)
+//                        .snippet(fpbId)
+//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLng(fpbLatLong));
+//            }
+//        }
 
 //        for(Entry<String, String[]> entry : fpeList.entrySet()) {
 //            String fpeId = entry.getKey();
@@ -248,8 +263,41 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Toast.makeText(this, "Info window clicked",
-                Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(MapsActivity.this, DetailsActivity.class);
+
+        String kind = marker.getTitle();
+        if(kind.equals("upa")){
+            String[] upaInfo = upasList.get(marker.getSnippet());
+            String[] upaDetails = upasDetailsList.get(marker.getSnippet());
+
+            intent.putExtra("tipo", "UPA");
+            intent.putExtra("nome", upaInfo[0]);
+            intent.putExtra("logradouro", upaInfo[1]);
+            intent.putExtra("bairro", upaInfo[2]);
+            intent.putExtra("cidade", upaInfo[3]);
+            intent.putExtra("estado", upaInfo[4]);
+
+
+
+        }
+        if(kind.equals("fpb")){
+
+            String[] fpbInfo = fpbList.get(marker.getSnippet());
+            String[] fpbDetails = fpbDetailsList.get(marker.getSnippet());
+
+            intent.putExtra("tipo", "FPB");
+            intent.putExtra("nome", "FÁRMACIA POPULAR DO BRASIL");
+            intent.putExtra("logradouro", fpbInfo[0]);
+            intent.putExtra("bairro", "");
+            intent.putExtra("cidade", fpbInfo[1]);
+            intent.putExtra("estado", fpbInfo[2]);
+
+
+        }
+
+        startActivity(intent);
+
     }
 
     public void getUPA(View button){

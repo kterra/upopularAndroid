@@ -9,6 +9,8 @@
     <string name="upa_city">Cidade: Rio de Janeiro</string>
     <string name="upa_state">Estado: Rio de Janeiro</string>
     <string name="upa_porte">Porte: I</string>
+    <string name="phone_number"> 21 33458679</string>
+    <string name="getroute">Como chegar?</string>
 
     <string name="action_settings">Settings</string>
 </resources>

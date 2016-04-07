@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import com.google.common.base.Splitter;
 
 /**
  * Created by kizzyterra on 11/01/16.
@@ -27,7 +29,7 @@ public class CSVReader {
         try {
             String csvLine;
             while ((csvLine = reader.readLine()) != null) {
-                String[] row = csvLine.split(",");
+                String[] row = Splitter.on(Pattern.compile(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)")).splitToList(csvLine).toArray(new String[0]);
                 resultList.put(row[0], Arrays.copyOfRange(row, 1, row.length));
             }
         }

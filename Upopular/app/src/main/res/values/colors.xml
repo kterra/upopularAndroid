@@ -6,6 +6,10 @@
     <color name="lightGrey">#b6b6b6</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="textview_business_description">#7f7f7f</color>
+    <color name="darkGrey">#7f7f7f</color>
+
+    <color name="call_button_backgrond_color">#a62c00</color>
+    <color name="call_button_backgrond_color_pressed">#d63900</color>
+    <color name="call_button_stroke_color_focused">#a62c00</color>
 
 </resources>
