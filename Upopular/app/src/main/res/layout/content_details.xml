@@ -79,7 +79,7 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="15dp"
                         android:textSize="@dimen/content_size"
-                        android:textColor="@color/mediumGrey"
+                        android:textColor="@color/darkGrey"
                         android:id="@+id/street_tag"
                         android:text="@string/upa_street_tag" />
                     <View
@@ -129,7 +129,7 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="5dp"
                         android:textSize="@dimen/content_size"
-                        android:textColor="@color/mediumGrey"
+                        android:textColor="@color/darkGrey"
                         android:id="@+id/district_tag"
                         android:text="@string/upa_district_tag" />
                     <View
@@ -175,7 +175,7 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="5dp"
                         android:textSize="@dimen/content_size"
-                        android:textColor="@color/mediumGrey"
+                        android:textColor="@color/darkGrey"
                         android:id="@+id/city_tag"
                         android:text="@string/upa_city_tag" />
                     <View
@@ -220,7 +220,7 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="5dp"
                         android:textSize="@dimen/content_size"
-                        android:textColor="@color/mediumGrey"
+                        android:textColor="@color/darkGrey"
                         android:id="@+id/state_tag"
                         android:text="@string/upa_state_tag" />
                     <View
@@ -275,7 +275,7 @@
                     android:text="@string/upa_porte_tag"
                     android:gravity="center_vertical"
                     android:layout_gravity="center"
-                    android:textColor="@color/mediumGrey"/>
+                    android:textColor="@color/darkGrey"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -304,6 +304,7 @@
 
 
         <android.support.v7.widget.AppCompatButton
+            android:id="@+id/callbutton"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@drawable/call_button"
@@ -315,6 +316,7 @@
             android:text="@string/phone_number"
             android:paddingLeft="45dp"
             android:paddingRight="50dp"
+            android:onClick="callPlace"
             />
         <android.support.v7.widget.AppCompatButton
             android:layout_width="match_parent"
@@ -328,6 +330,7 @@
             android:text="@string/getroute"
             android:paddingLeft="45dp"
             android:paddingRight="30dp"
+            android:onClick="getRoute"
             />
 
 
