@@ -7,11 +7,6 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class Utils {
 
-    public static double computeDistance(LatLng origin, LatLng destination){
-
-        return 0.0;
-    }
-
     public static double distance(LatLng location1, LatLng location2) {
         return distance(location1.latitude, location1.longitude, location2.latitude, location2.longitude);
     }

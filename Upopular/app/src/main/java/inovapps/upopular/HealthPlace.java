@@ -7,11 +7,12 @@ public class HealthPlace {
 
     //Might be a UPA or Pharmacy
     private String name;
-    private MyAddress address;
+    //private MyAddress address;
+    private String address;
     private String phoneNumber;
-    private int port = -1; //pharmacies have port 0. UPAs have port > 0
+    //private int port = -1; //pharmacies have port 0. UPAs have port > 0
 
-    public HealthPlace(String name, MyAddress address, String phoneNumber) {
+    public HealthPlace(String name, String address, String phoneNumber) {
         this.name = name;
         this.address = address;
         this.phoneNumber = phoneNumber;
@@ -25,7 +26,7 @@ public class HealthPlace {
         this.name = name;
     }
 
-    public MyAddress getAddress() {
+    public String getAddress() {
         return address;
     }
 
@@ -37,7 +38,7 @@ public class HealthPlace {
         this.phoneNumber = phoneNumber;
     }
 
-    public void setAddress(MyAddress address) {
+    public void setAddress(String address) {
         this.address = address;
     }
 }

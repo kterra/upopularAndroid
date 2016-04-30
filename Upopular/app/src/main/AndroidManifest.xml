@@ -31,17 +31,22 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        </activity>
+        <activity
+            android:name=".HealthListActivity"
+            android:label="@string/title_activity_list">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+
         </activity>
         <activity
             android:name=".UPADetailsActivity"
             android:label="@string/title_activity_upadetails"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".HealthListActivity"></activity>
     </application>
 
 </manifest>

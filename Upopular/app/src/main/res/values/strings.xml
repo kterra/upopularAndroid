@@ -2,6 +2,7 @@
     <string name="app_name">Upopular</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_upadetails">UPADetailsActivity</string>
+    <string name="title_activity_list">ListActivity</string>
 
     <string name="upa_title">UPA Título</string>
     <string name="upa_street">Logradouro: Rua dos Bobos, 345</string>

@@ -1,5 +1,6 @@
 package inovapps.upopular;
 
+import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,15 +10,21 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by hallpaz on 13/03/2016.
  */
 public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlaceRecyclerAdapter.HealthPlaceViewHolder> {
 
+    private Context context;
     private List<HealthPlace> placeList;
+    private List<String> nearestKeys;
     private LatLng userLocation;
     private double radius;
 
@@ -37,10 +44,29 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         }
     }
 
-    HealthPlaceRecyclerAdapter(List<HealthPlace> dataList, LatLng location, double searchRadius){
+    HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius, List<HealthPlace> dataList){
+        context = c;
         placeList = dataList;
         userLocation = location;
         radius = searchRadius*1000;
+    }
+
+    HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius){
+        context = c;
+        userLocation = location;
+        radius = searchRadius*1000;
+
+        placeList = new ArrayList<HealthPlace>();
+        nearestKeys = new ArrayList<String>();
+
+        //loaddata on background
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loadData();
+            }
+        });
+
     }
 
     @Override
@@ -68,9 +94,40 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
     public void populateViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder viewHolder, HealthPlace place, int position){
         viewHolder.healthPlaceName.setText(place.getName());
         viewHolder.address.setText(place.getAddress().toString());
-        double distance = Utils.computeDistance(userLocation, place.getAddress().getLocation());
+       // double distance = Utils.distance(userLocation, place.getAddress().getLocation());
+        //TODO: deal with it!
+        double distance = 7.777;
         DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00" );
         viewHolder.distance.setText(df2.format(distance));
+    }
+
+    private void loadData(){
+        InputStream inputStream = context.getResources().openRawResource(R.raw.upa_funcionamento_latlng);
+        CSVReader csvFile = new  CSVReader (inputStream);
+        HashMap<String, String[]> currentData = csvFile.read();
+
+        //Check for all keys near location
+        for(Map.Entry<String, String[]> entry : currentData.entrySet()) {
+            String key = entry.getKey();
+            String[] value = entry.getValue();
+            double latitude = Double.parseDouble(value[0]);
+            double longitude = Double.parseDouble(value[1]);
+
+            if (Utils.distance(latitude, longitude, userLocation.latitude, userLocation.longitude) < radius){
+                nearestKeys.add(key);
+            }
+        }
+
+        inputStream = context.getResources().openRawResource(R.raw.upa_funcionamento);
+        csvFile = new  CSVReader (inputStream);
+        currentData = csvFile.read();
+
+        for (String key: nearestKeys) {
+            String[] values = currentData.get(key);
+            placeList.add(new HealthPlace(values[1], values[2], "23456-7890"));
+            notifyItemInserted(placeList.size() - 1);
+        }
+
     }
 
 
