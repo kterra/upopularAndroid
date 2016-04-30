@@ -78,7 +78,14 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         Button callButton = (Button)findViewById(R.id.callbutton);
-        callButton.setText(telefone );
+        if(telefone == null || telefone.isEmpty()) {
+            callButton.setVisibility(View.GONE);
+        }
+        else{
+            callButton.setVisibility(View.VISIBLE);
+            callButton.setText(telefone );
+        }
+
 
     }
 
@@ -91,5 +98,14 @@ public class DetailsActivity extends AppCompatActivity {
 
     public void getRoute(View button){
 
+
+//        String uriBegin = "geo:0,0";
+//        String query = latitude + "," + longitude + "(" + name + ")";
+//        String encodedQuery = Uri.encode(query);
+//        String uriString = uriBegin + "?q=" + encodedQuery + "&z=16" + "&mode=walk";
+        String uriString = "https://maps.google.com/maps?f=d&daddr="+latitude + "," + longitude +"&mode=walking";
+        Uri uri = Uri.parse(uriString);
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
+        startActivity(intent);
     }
 }
