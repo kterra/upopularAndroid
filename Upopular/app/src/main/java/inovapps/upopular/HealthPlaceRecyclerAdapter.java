@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +22,29 @@ import java.util.Map;
 /**
  * Created by hallpaz on 13/03/2016.
  */
+
 public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlaceRecyclerAdapter.HealthPlaceViewHolder> {
 
+    static class Constants {
+        public static final int NAME = 0;
+        //address
+        public static final int STREET = 1;
+        public static final int NUMBER = 2;
+        //public static final int COMPLEMENT = 0;
+        public static final int DISTRICT = 3;
+        public static final int CITY = 4;
+        public static final int STATE = 5;
+
+        public static final int LAT = 6;
+        public static final int LONG = 7;
+        public static final int PORT = 8;
+        public static final int PHONE = 9;
+
+    }
+
     private Context context;
-    private List<HealthPlace> placeList;
+    //private List<HealthPlace> placeList;
+    private List<List<String>> placeList;
     private List<String> nearestKeys;
     private LatLng userLocation;
     private double radius;
@@ -45,11 +65,20 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         }
     }
 
-    HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius, List<HealthPlace> dataList){
+    HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius, List<List<String>> dataList){
         context = c;
         placeList = dataList;
         userLocation = location;
         radius = searchRadius*1000;
+    }
+
+    HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius, Map<String, List<String>> dataMap){
+        context = c;
+        userLocation = location;
+        radius = searchRadius*1000;
+
+        placeList = new ArrayList<List<String>>();
+        placeList.addAll(dataMap.values());
     }
 
     HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius){
@@ -57,7 +86,7 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         userLocation = location;
         radius = searchRadius*1000;
 
-        placeList = new ArrayList<HealthPlace>();
+        placeList = new ArrayList<List<String>>();
         nearestKeys = new ArrayList<String>();
 
 
@@ -84,8 +113,10 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         /*if (position >= getItemCount()-1){
             loadMore();
         }*/
-        HealthPlace model = placeList.get(position);
-        this.populateViewHolder(holder, model, position);
+        //HealthPlace model = placeList.get(position);
+        List<String> data = placeList.get(position);
+        //this.populateViewHolder(holder, model, position);
+        this.populateViewHolder(holder, data, position);
     }
 
     @Override
@@ -93,11 +124,79 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         return placeList.size();
     }
 
+    public String fullAddress(List<String> data){
+        String street = data.get(Constants.STREET);
+        String number = data.get(Constants.NUMBER);
+        String district = data.get(Constants.DISTRICT);
+        String city = data.get(Constants.CITY);
+        String state = data.get(Constants.STATE);
 
-    public void populateViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder viewHolder, final HealthPlace place, int position){
+        String representation = "";
+        boolean shouldPutComma = false;
+        if (street != "" && street != null){
+            representation += street;
+            shouldPutComma = true;
+        }
+        if (number != null && !number.isEmpty()){
+            if(shouldPutComma)
+                representation += ", ";
+            representation += number;
+            shouldPutComma = true;
+        }
+
+        if (district != null && !district.isEmpty()){
+            if(shouldPutComma)
+                representation += ", ";
+            representation += district;
+            shouldPutComma = true;
+        }
+        if (city != null && !city.isEmpty()) {
+            if (shouldPutComma)
+                representation += ", ";
+            representation += city;
+            shouldPutComma = true;
+        }
+        if (state != null && !state.isEmpty()) {
+            representation += " (" + state + ")";
+        }
+        return representation;
+    }
+
+    public void populateViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder viewHolder, final List<String> place, int position){
+        viewHolder.healthPlaceName.setText(place.get(Constants.NAME));
+        viewHolder.address.setText(fullAddress(place));
+        // double distance = Utils.distance(userLocation, place.getAddress().getLocation());
+        //TODO: deal with it!
+        double distance = 7.777;
+        DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00" );
+        viewHolder.distance.setText(df2.format(distance));
+
+
+        viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent detailsIntent = new Intent(context, DetailsActivity.class);
+                detailsIntent.putExtra("tipo", "UPA");
+                detailsIntent.putExtra("nome", place.get(Constants.NAME));
+
+                // Address
+                detailsIntent.putExtra("logradouro", place.get(Constants.STREET));
+                detailsIntent.putExtra("bairro", place.get(Constants.DISTRICT));
+                detailsIntent.putExtra("cidade", place.get(Constants.CITY));
+                detailsIntent.putExtra("estado", place.get(Constants.STATE));
+                detailsIntent.putExtra("porte", place.get(Constants.PORT));
+                detailsIntent.putExtra("telefone", place.get(Constants.PHONE));
+
+                context.startActivity(detailsIntent);
+            }
+        });
+    }
+
+    /*public void populateViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder viewHolder, final HealthPlace place, int position){
         viewHolder.healthPlaceName.setText(place.getName());
         viewHolder.address.setText(place.getFullAddress());
-       // double distance = Utils.distance(userLocation, place.getAddress().getLocation());
+        // double distance = Utils.distance(userLocation, place.getAddress().getLocation());
         //TODO: deal with it!
         double distance = 7.777;
         DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00" );
@@ -122,16 +221,14 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
             }
         });
     }
+*/
 
     private void loadData(){
-
-
-        placeList.add(new HealthPlace("UPA Sãens Peña", new MyAddress("Rua Conde de Bonfim, 330", null, null, null, null), "(21) 2222-3333"));
-        placeList.add(new HealthPlace("UPA Botafogo", new MyAddress("Rua São Clemente, 227", null, null, null, null), "(21) 3333-4444"));
-
+        placeList.add(Arrays.asList("UPA Sãens Peña", "Rua Conde de Bonfim", "330", "Tijuca", "Rio de Janeiro", "RJ", null, null, "1", "(21) 2222-3333"));
+        placeList.add(Arrays.asList("UPA Botafogo", "Rua São Clemente", "227", "Botafogo", "Rio de Janeiro", "RJ", null, null, "3", "(21) 3333-4444"));
     }
 
-    public void setPlaceList(List<HealthPlace> placeList) {
+    public void setPlaceList(List<List<String>> placeList) {
         this.placeList = placeList;
         notifyDataSetChanged();
     }

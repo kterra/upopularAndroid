@@ -162,6 +162,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
     public void showList(View button) {
         Intent listIntent = new Intent(this, HealthListActivity.class);
+        listIntent.putExtra("UPAs", upaData);
         startActivity(listIntent);
     }
 

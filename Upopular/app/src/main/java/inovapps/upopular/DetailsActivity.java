@@ -43,7 +43,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         TextView streetField = (TextView) findViewById(R.id.street);
-        if(street.isEmpty()){
+        if(street == null || street.isEmpty()){
             streetField.setText("Não informado");
         }else{
             streetField.setText(street);
@@ -71,7 +71,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         TextView porteField = (TextView) findViewById(R.id.porte);
-        if(porte.isEmpty()){
+        if(porte == null || porte.isEmpty()){
             porteField.setText("Não informado");
         }else {
             porteField.setText(porte);
