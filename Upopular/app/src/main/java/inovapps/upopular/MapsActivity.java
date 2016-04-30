@@ -1,6 +1,11 @@
 package inovapps.upopular;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SyncStatusObserver;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -8,8 +13,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.*;
 
@@ -37,17 +45,22 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
     private HashMap<String, String[]> fpeDetailsList;
     private boolean upaSelected;
     private boolean fpbSelected;
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+       // MapsActivity.this.deleteDatabase("Upopular.db");
+        dbHelper = new DatabaseHelper(MapsActivity.this);
 
 
-        readUPAData();
+        //readUPAData();
         //readFPBData();
         //readFPEData();
+
+        new AccessDataBase().execute("start");
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -56,7 +69,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         View mapView = (mapFragment.getFragmentManager().findFragmentById(R.id.map)).getView();
         View btnMyLocation = ((View) mapView.findViewById(1).getParent()).findViewById(2);
 
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80,80); // size of button in dp
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80, 80); // size of button in dp
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
         params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         params.setMargins(0, 0, 20, 150);
@@ -65,48 +78,47 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
     }
 
-    private void readUPAData(){
+    private void readUPAData() {
         InputStream inputStream = getResources().openRawResource(R.raw.upa_funcionamento_latlng);
-        CSVReader csvFile = new  CSVReader (inputStream);
+        CSVReader csvFile = new CSVReader(inputStream);
         upasLatLngList = csvFile.read();
 
         inputStream = getResources().openRawResource(R.raw.upa_funcionamento);
-        csvFile = new  CSVReader (inputStream);
+        csvFile = new CSVReader(inputStream);
         upasList = csvFile.read();
 
         inputStream = getResources().openRawResource(R.raw.upa_funcionamento_detalhes);
-        csvFile = new  CSVReader (inputStream);
+        csvFile = new CSVReader(inputStream);
         upasDetailsList = csvFile.read();
     }
 
-    private void readFPBData(){
+    private void readFPBData() {
         InputStream inputStream = getResources().openRawResource(R.raw.farmacia_popular_brasil_latlng);
-        CSVReader csvFile = new  CSVReader (inputStream);
+        CSVReader csvFile = new CSVReader(inputStream);
         fpbLatLngList = csvFile.read();
 
         inputStream = getResources().openRawResource(R.raw.farmacia_popular_brasil);
-        csvFile = new  CSVReader (inputStream);
+        csvFile = new CSVReader(inputStream);
         fpbList = csvFile.read();
 
         inputStream = getResources().openRawResource(R.raw.farmacia_popular_brasil_detalhes);
-        csvFile = new  CSVReader (inputStream);
+        csvFile = new CSVReader(inputStream);
         fpbDetailsList = csvFile.read();
     }
 
-    private void readFPEData(){
+    private void readFPEData() {
         InputStream inputStream = getResources().openRawResource(R.raw.farmacia_popular_estabelecimento_latlng);
-        CSVReader csvFile = new  CSVReader (inputStream);
+        CSVReader csvFile = new CSVReader(inputStream);
         fpeLatLngList = csvFile.read();
 
         inputStream = getResources().openRawResource(R.raw.farmacia_popular_estabelecimento);
-        csvFile = new  CSVReader (inputStream);
+        csvFile = new CSVReader(inputStream);
         fpeList = csvFile.read();
 
         inputStream = getResources().openRawResource(R.raw.farmacia_popular_estabelecimento_detalhes);
-        csvFile = new  CSVReader (inputStream);
+        csvFile = new CSVReader(inputStream);
         fpeDetailsList = csvFile.read();
     }
-
 
 
     /**
@@ -122,14 +134,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
     public void onMapReady(GoogleMap googleMap) {
 
 
-
-
         mMap = googleMap;
         mMap.setOnInfoWindowClickListener(this);
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        try{
+        try {
             mMap.setMyLocationEnabled(true);
-        }catch (SecurityException e){
+        } catch (SecurityException e) {
 
         }
 
@@ -151,7 +161,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
                 // Getting the position from the marker
                 String kind = arg0.getTitle();
-                if(kind.equals("upa")){
+                if (kind.equals("upa")) {
                     String[] upaInfo = upasList.get(arg0.getSnippet());
 
                     // Getting reference to the TextView to set latitude
@@ -165,7 +175,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                     TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
                     subtitle2.setText(upaInfo[4] + ", " + upaInfo[5]);
                 }
-                if(kind.equals("fpb")){
+                if (kind.equals("fpb")) {
                     String[] fpbInfo = fpbList.get(arg0.getSnippet());
 
                     // Getting reference to the TextView to set latitude
@@ -180,7 +190,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                     subtitle2.setText(fpbInfo[1] + ", " + fpbInfo[2]);
                 }
 
-                if(kind.equals("fpe")){
+                if (kind.equals("fpe")) {
                     String[] fpeInfo = fpeList.get(arg0.getSnippet());
 
                     // Getting reference to the TextView to set latitude
@@ -203,25 +213,24 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
         });
 
-
-
-        upaSelected = true;
-        for(Entry<String, String[]> entry : upasList.entrySet()) {
-            String upaId = entry.getKey();
-
-            if(!upaId.equals("gid")){
-                String [] latLng = upasLatLngList.get(upaId);
-
-               // Log.d("upa", latLng[0] + latLng[1]);
-                LatLng upaLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
-                mMap.addMarker(new MarkerOptions()
-                        .title("upa")
-                        .position(upaLatLong)
-                        .snippet(upaId)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(upaLatLong));
-            }
-        }
+//
+//        upaSelected = true;
+//        for (Entry<String, String[]> entry : upasList.entrySet()) {
+//            String upaId = entry.getKey();
+//
+//            if (!upaId.equals("gid")) {
+//                String[] latLng = upasLatLngList.get(upaId);
+//
+//                // Log.d("upa", latLng[0] + latLng[1]);
+//                LatLng upaLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
+//                mMap.addMarker(new MarkerOptions()
+//                        .title("upa")
+//                        .position(upaLatLong)
+//                        .snippet(upaId)
+//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLng(upaLatLong));
+//            }
+//        }
 //
 //        fpbSelected = true;
 //        for(Entry<String, String[]> entry : fpbList.entrySet()) {
@@ -267,7 +276,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         Intent intent = new Intent(MapsActivity.this, DetailsActivity.class);
 
         String kind = marker.getTitle();
-        if(kind.equals("upa")){
+        if (kind.equals("upa")) {
             String[] upaInfo = upasList.get(marker.getSnippet());
             String[] upaDetails = upasDetailsList.get(marker.getSnippet());
 
@@ -279,9 +288,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
             intent.putExtra("estado", upaInfo[4]);
 
 
-
         }
-        if(kind.equals("fpb")){
+        if (kind.equals("fpb")) {
 
             String[] fpbInfo = fpbList.get(marker.getSnippet());
             String[] fpbDetails = fpbDetailsList.get(marker.getSnippet());
@@ -300,21 +308,21 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
     }
 
-    public void getUPA(View button){
+    public void getUPA(View button) {
         Button buttonClicked = (Button) button;
 
-        if(upaSelected){
+        if (upaSelected) {
             buttonClicked.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
             buttonClicked.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(this, R.drawable.ic_local_hospital_blue_24dp), null, null, null);
             buttonClicked.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
             mMap.clear();
-            if(fpbSelected){
-                for(Entry<String, String[]> entry : fpbList.entrySet()) {
+            if (fpbSelected) {
+                for (Entry<String, String[]> entry : fpbList.entrySet()) {
                     String fpbId = entry.getKey();
 
-                    if(!fpbId.equals("gid")){
-                        String [] latLng = fpbLatLngList.get(fpbId);
+                    if (!fpbId.equals("gid")) {
+                        String[] latLng = fpbLatLngList.get(fpbId);
 
                         // Log.d("fpb", latLng[0] + latLng[1]);
                         LatLng fpbLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
@@ -327,16 +335,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                 }
             }
 
-        }else{
+        } else {
             buttonClicked.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
             buttonClicked.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(this, R.drawable.ic_local_hospital_white_24dp), null, null, null);
             buttonClicked.setTextColor(ContextCompat.getColor(this, R.color.white));
 
-            for(Entry<String, String[]> entry : upasList.entrySet()) {
+            for (Entry<String, String[]> entry : upasList.entrySet()) {
                 String upaId = entry.getKey();
 
-                if(!upaId.equals("gid")){
-                    String [] latLng = upasLatLngList.get(upaId);
+                if (!upaId.equals("gid")) {
+                    String[] latLng = upasLatLngList.get(upaId);
 
                     // Log.d("upa", latLng[0] + latLng[1]);
                     LatLng upaLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
@@ -351,28 +359,27 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         }
 
 
-
         upaSelected = (!upaSelected);
 
 
     }
 
-    public void getFPB(View button){
+    public void getFPB(View button) {
         Button buttonClicked = (Button) button;
 
-        if(fpbSelected){
+        if (fpbSelected) {
             buttonClicked.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
             buttonClicked.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(this, R.drawable.ic_local_pharmacy_blue_24dp), null, null, null);
             buttonClicked.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
             mMap.clear();
 
-            if(upaSelected){
-                for(Entry<String, String[]> entry : upasList.entrySet()) {
+            if (upaSelected) {
+                for (Entry<String, String[]> entry : upasList.entrySet()) {
                     String upaId = entry.getKey();
 
-                    if(!upaId.equals("gid")){
-                        String [] latLng = upasLatLngList.get(upaId);
+                    if (!upaId.equals("gid")) {
+                        String[] latLng = upasLatLngList.get(upaId);
 
                         // Log.d("upa", latLng[0] + latLng[1]);
                         LatLng upaLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
@@ -386,16 +393,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
             }
 
 
-                }else{
+        } else {
             buttonClicked.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
             buttonClicked.setCompoundDrawablesWithIntrinsicBounds(ContextCompat.getDrawable(this, R.drawable.ic_local_pharmacy_white_24dp), null, null, null);
             buttonClicked.setTextColor(ContextCompat.getColor(this, R.color.white));
 
-            for(Entry<String, String[]> entry : fpbList.entrySet()) {
+            for (Entry<String, String[]> entry : fpbList.entrySet()) {
                 String fpbId = entry.getKey();
 
-                if(!fpbId.equals("gid")){
-                    String [] latLng = fpbLatLngList.get(fpbId);
+                if (!fpbId.equals("gid")) {
+                    String[] latLng = fpbLatLngList.get(fpbId);
 
                     // Log.d("fpb", latLng[0] + latLng[1]);
                     LatLng fpbLatLong = new LatLng(Float.valueOf(latLng[0]), Float.valueOf(latLng[1]));
@@ -412,4 +419,54 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
     }
 
+    public class AccessDataBase extends AsyncTask<String, String, ArrayList<String>> {
+
+
+        private ProgressDialog dialog;
+
+        public AccessDataBase() {
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog = new ProgressDialog(MapsActivity.this);
+            dialog.setTitle("Importando os dados");
+            dialog.setMessage("Por favor, aguarde...");
+            dialog.setCancelable(false);
+            dialog.setIcon(android.R.drawable.ic_dialog_info);
+            dialog.show();
+        }
+
+        @Override
+        protected ArrayList<String> doInBackground(String... params) {
+
+            InputStream inputStream = getResources().openRawResource(R.raw.upa_funcionamento_georref);
+            dbHelper.insertData(inputStream);
+
+
+            ArrayList<String> data = dbHelper.getAllData();
+
+            return data;
+        }
+
+        protected void onPostExecute(ArrayList<String> data) {
+
+
+
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+
+            if (data.size() != 0) {
+                Toast.makeText(MapsActivity.this, data.get(0)+"File is built Successfully!" + "\n" + data, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(MapsActivity.this, "File fail to build", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+    }
 }
+
+

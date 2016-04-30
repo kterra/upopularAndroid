@@ -41,7 +41,11 @@
             android:name=".DetailsActivity"
             android:label="@string/title_activity_upadetails"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".HealthListActivity"></activity>
+        <activity android:name=".HealthListActivity" />
+        <activity
+            android:name=".DetailsTestActivity"
+            android:label="@string/title_activity_details_test"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

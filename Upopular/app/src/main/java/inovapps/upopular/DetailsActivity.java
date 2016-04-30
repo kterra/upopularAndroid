@@ -15,8 +15,8 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+       // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
         kind = intent.getStringExtra("tipo");
@@ -38,30 +38,30 @@ public class DetailsActivity extends AppCompatActivity {
 
         TextView streetField = (TextView) findViewById(R.id.street);
         if(street.isEmpty()){
-            streetField.setText("Logradouro: Não informado");
+            streetField.setText("Não informado");
         }else{
-            streetField.setText("Logradouro: " + street);
+            streetField.setText(street);
         }
 
         TextView districtField = (TextView) findViewById(R.id.district);
         if(district.isEmpty()){
-            districtField.setText("Bairro: Não informado");
+            districtField.setText("Não informado");
         }else{
-            districtField.setText("Bairro: " + street);
+            districtField.setText(district);
         }
 
         TextView cityField = (TextView) findViewById(R.id.city);
         if(city.isEmpty()){
-            cityField.setText("Cidade: Não informada");
+            cityField.setText("Não informada");
         }else {
-            cityField.setText("Cidade: " + city);
+            cityField.setText(city);
         }
 
         TextView stateField = (TextView) findViewById(R.id.state);
         if(state.isEmpty()){
-            stateField.setText("Estado: Não informado");
+            stateField.setText("Não informado");
         }else {
-            stateField.setText("Estado: " + state);
+            stateField.setText(state);
         }
 
     }
