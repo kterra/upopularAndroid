@@ -7,6 +7,8 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context="inovapps.upopular.MapsActivity" >
 
+
+
 <fragment
     android:id="@+id/map"
     android:layout_width="match_parent"
@@ -16,6 +18,25 @@ tools:context="inovapps.upopular.MapsActivity" >
 
     class="com.google.android.gms.maps.SupportMapFragment"/>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_gravity="top|right"
+        android:gravity="center"
+        android:orientation="horizontal"
+        >
+    <Button
+        android:id="@+id/listButton"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:text="Lista"
+        android:background="@android:drawable/screen_background_light"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        />
+    </LinearLayout>
 <LinearLayout
     android:id="@+id/radio_group_list_selector"
     android:layout_width="match_parent"
@@ -23,6 +44,8 @@ tools:context="inovapps.upopular.MapsActivity" >
     android:layout_gravity="bottom"
     android:orientation="horizontal"
      >
+
+
 
     <Button
         android:id="@+id/radioPopular"
