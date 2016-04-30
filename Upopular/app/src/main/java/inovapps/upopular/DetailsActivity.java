@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    String kind, name, street, district, city, state, slatitude, slongitude, porte, telefone;
+    String kind, name, street, district, city, state, latitude, longitude, porte, telefone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +27,8 @@ public class DetailsActivity extends AppCompatActivity {
         district = intent.getStringExtra("bairro");
         city =  intent.getStringExtra("cidade");
         state = intent.getStringExtra("estado");
-        slatitude = intent.getStringExtra("lat");
-        slongitude = intent.getStringExtra("long");
+        latitude = intent.getStringExtra("lat");
+        longitude = intent.getStringExtra("long");
         porte = intent.getStringExtra("porte");
         telefone = intent.getStringExtra("telefone");
 
@@ -78,7 +78,14 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         Button callButton = (Button)findViewById(R.id.callbutton);
-        callButton.setText(telefone );
+        if(telefone == null || telefone.isEmpty()) {
+            callButton.setVisibility(View.GONE);
+        }
+        else{
+            callButton.setVisibility(View.VISIBLE);
+            callButton.setText(telefone );
+        }
+
 
     }
 
@@ -91,12 +98,12 @@ public class DetailsActivity extends AppCompatActivity {
 
     public void getRoute(View button){
 
-        Float latitude = Float.valueOf(slatitude);
-        Float longitude= Float.valueOf(slongitude);
-        String uriBegin = "geo:0,0";
-        String query = latitude + "," + longitude + "(" + name + ")";
-        String encodedQuery = Uri.encode(query);
-        String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
+
+//        String uriBegin = "geo:0,0";
+//        String query = latitude + "," + longitude + "(" + name + ")";
+//        String encodedQuery = Uri.encode(query);
+//        String uriString = uriBegin + "?q=" + encodedQuery + "&z=16" + "&mode=walk";
+        String uriString = "https://maps.google.com/maps?f=d&daddr="+latitude + "," + longitude +"&mode=walking";
         Uri uri = Uri.parse(uriString);
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
         startActivity(intent);
