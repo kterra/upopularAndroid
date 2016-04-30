@@ -467,6 +467,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
 
     }
+
+    public void showList(View button) {
+        Intent listIntent = new Intent(this, HealthListActivity.class);
+        startActivity(listIntent);
+    }
 }
 
 

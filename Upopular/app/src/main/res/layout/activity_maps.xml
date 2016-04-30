@@ -35,6 +35,7 @@ tools:context="inovapps.upopular.MapsActivity" >
         android:fontFamily="sans-serif-condensed"
         android:textColor="@color/black"
         android:layout_gravity="center"
+        android:onClick="showList"
         />
     </LinearLayout>
 <LinearLayout

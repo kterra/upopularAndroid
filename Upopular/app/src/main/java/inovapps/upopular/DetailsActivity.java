@@ -44,21 +44,21 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         TextView districtField = (TextView) findViewById(R.id.district);
-        if(district.isEmpty()){
+        if(district == null || district.isEmpty()){
             districtField.setText("Não informado");
         }else{
             districtField.setText(district);
         }
 
         TextView cityField = (TextView) findViewById(R.id.city);
-        if(city.isEmpty()){
+        if(city == null || city.isEmpty()){
             cityField.setText("Não informada");
         }else {
             cityField.setText(city);
         }
 
         TextView stateField = (TextView) findViewById(R.id.state);
-        if(state.isEmpty()){
+        if(state == null || state.isEmpty()){
             stateField.setText("Não informado");
         }else {
             stateField.setText(state);
