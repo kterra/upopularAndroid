@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    String kind, name, street, district, city, state, latitude, longitude, porte, telefone;
+    String kind, name, street, district, city, state, slatitude, slongitude, porte, telefone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +27,8 @@ public class DetailsActivity extends AppCompatActivity {
         district = intent.getStringExtra("bairro");
         city =  intent.getStringExtra("cidade");
         state = intent.getStringExtra("estado");
-        latitude = intent.getStringExtra("lat");
-        longitude = intent.getStringExtra("long");
+        slatitude = intent.getStringExtra("lat");
+        slongitude = intent.getStringExtra("long");
         porte = intent.getStringExtra("porte");
         telefone = intent.getStringExtra("telefone");
 
@@ -91,5 +91,14 @@ public class DetailsActivity extends AppCompatActivity {
 
     public void getRoute(View button){
 
+        Float latitude = Float.valueOf(slatitude);
+        Float longitude= Float.valueOf(slongitude);
+        String uriBegin = "geo:0,0";
+        String query = latitude + "," + longitude + "(" + name + ")";
+        String encodedQuery = Uri.encode(query);
+        String uriString = uriBegin + "?q=" + encodedQuery + "&z=16";
+        Uri uri = Uri.parse(uriString);
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
+        startActivity(intent);
     }
 }
