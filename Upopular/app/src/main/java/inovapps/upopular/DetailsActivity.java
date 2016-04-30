@@ -1,15 +1,17 @@
 package inovapps.upopular;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    String kind, name, street, district, city, state;
+    String kind, name, street, district, city, state, latitude, longitude, porte, telefone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,10 @@ public class DetailsActivity extends AppCompatActivity {
         district = intent.getStringExtra("bairro");
         city =  intent.getStringExtra("cidade");
         state = intent.getStringExtra("estado");
+        latitude = intent.getStringExtra("lat");
+        longitude = intent.getStringExtra("long");
+        porte = intent.getStringExtra("porte");
+        telefone = intent.getStringExtra("telefone");
 
         TextView nameField = (TextView) findViewById(R.id.title);
         if(name.isEmpty()){
@@ -63,6 +69,27 @@ public class DetailsActivity extends AppCompatActivity {
         }else {
             stateField.setText(state);
         }
+
+        TextView porteField = (TextView) findViewById(R.id.porte);
+        if(porte.isEmpty()){
+            porteField.setText("Não informado");
+        }else {
+            porteField.setText(porte);
+        }
+
+        Button callButton = (Button)findViewById(R.id.callbutton);
+        callButton.setText(telefone );
+
+    }
+
+    public void callPlace(View button){
+
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + telefone));
+        startActivity(intent);
+
+    }
+
+    public void getRoute(View button){
 
     }
 }
