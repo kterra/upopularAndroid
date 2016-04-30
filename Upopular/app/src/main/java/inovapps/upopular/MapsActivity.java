@@ -188,7 +188,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         protected HashMap<String, ArrayList<String>> doInBackground(String... params) {
 
             InputStream inputStream = getResources().openRawResource(R.raw.upa_funcionamento_georref);
-            dbHelper.insertData(inputStream);
+            //dbHelper.insertData(inputStream);
 
 
             upaData = dbHelper.getUPAMainData();
