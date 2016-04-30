@@ -44,7 +44,7 @@ public class HealthListActivity extends AppCompatActivity {
 
     private void initializeAdapters(){
         //pharmacyAdapter = new HealthPlaceRecyclerAdapter(this,);
-        LatLng userLocation = new LatLng(-22.30, -43.30);
+        LatLng userLocation = new LatLng(-22.924315, -43.2411521);
         UPAadapter = new HealthPlaceRecyclerAdapter(this, userLocation, 100.00, upaData);
 
         if (lookingForPharmacies){

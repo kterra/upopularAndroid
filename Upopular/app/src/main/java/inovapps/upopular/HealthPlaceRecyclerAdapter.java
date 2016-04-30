@@ -2,6 +2,7 @@ package inovapps.upopular;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +16,8 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +82,21 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
 
         placeList = new ArrayList<List<String>>();
         placeList.addAll(dataMap.values());
+
+        Collections.sort(placeList, new Comparator<List<String>>() {
+            @Override
+            public int compare(List<String> lhs, List<String> rhs) {
+                double lhsLat = Double.parseDouble(lhs.get(Constants.LAT));
+                double lhsLong = Double.parseDouble(lhs.get(Constants.LONG));
+                double lhsDist = Utils.distance(lhsLat, lhsLong, userLocation.latitude, userLocation.longitude);
+
+                double rhsLat = Double.parseDouble(rhs.get(Constants.LAT));
+                double rhsLong = Double.parseDouble(rhs.get(Constants.LONG));
+                double rhsDist = Utils.distance(rhsLat, rhsLong, userLocation.latitude, userLocation.longitude);
+
+                return (int) (lhsDist - rhsDist);
+            }
+        });
     }
 
     HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius){
@@ -163,13 +181,23 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
     }
 
     public void populateViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder viewHolder, final List<String> place, int position){
+
         viewHolder.healthPlaceName.setText(place.get(Constants.NAME));
         viewHolder.address.setText(fullAddress(place));
-        // double distance = Utils.distance(userLocation, place.getAddress().getLocation());
-        //TODO: deal with it!
-        double distance = 7.777;
+
         DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00" );
-        viewHolder.distance.setText(df2.format(distance));
+
+        if (place.get(Constants.LAT) != null && place.get(Constants.LONG) != null) {
+            double latitude = Double.parseDouble(place.get(Constants.LAT));
+            double longitude = Double.parseDouble(place.get(Constants.LONG));
+            viewHolder.distance.setText( "" +
+                    df2.format(Utils.distance(latitude, longitude, userLocation.latitude, userLocation.longitude)/1000.0) +
+                    " km"
+            );
+        }
+        else {
+            viewHolder.distance.setText("N/D");
+        }
 
 
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
