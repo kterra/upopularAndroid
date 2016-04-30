@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by kizzyterra on 4/29/16.
@@ -25,12 +26,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String UPAS_TABLE_NAME = "upas";
     public static final String UPAS_COLUMN_ID = "gid";
     public static final String UPAS_COLUMN_CEP = "cep";
+    public static final String UPAS_COLUMN_PHONE = "telefone";
+    public static final String UPAS_COLUMN_PORTE = "porte";
     public static final String UPAS_COLUMN_NAME = "nome_fantasia";
     public static final String UPAS_COLUMN_STREET = "logradouro";
     public static final String UPAS_COLUMN_NUMBER = "numero";
     public static final String UPAS_COLUMN_DISTRICT = "bairro";
     public static final String UPAS_COLUMN_CITY = "cidade";
     public static final String UPAS_COLUMN_STATE = "estado";
+    public static final String UPAS_COLUMN_LAT = "latitude";
+    public static final String UPAS_COLUMN_LONG = "longitude";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -42,12 +47,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         "("
                         + UPAS_COLUMN_ID + " integer, "
                         + UPAS_COLUMN_CEP + " text, "
-                        + UPAS_COLUMN_NAME + " text, "
-                        + UPAS_COLUMN_STREET + " text, "
-                        + UPAS_COLUMN_NUMBER + " text, "
-                        + UPAS_COLUMN_DISTRICT + " text, "
+                        + UPAS_COLUMN_STATE + " text, "
                         + UPAS_COLUMN_CITY + " text, "
-                        + UPAS_COLUMN_STATE + " text)"
+                        + UPAS_COLUMN_NAME + " text, "
+                        + UPAS_COLUMN_DISTRICT + " text, "
+                        + UPAS_COLUMN_NUMBER + " text, "
+                        + UPAS_COLUMN_STREET + " text, "
+                        + UPAS_COLUMN_PHONE + " text, "
+                        + UPAS_COLUMN_PORTE + " text, "
+                        + UPAS_COLUMN_LAT + " text, "
+                        + UPAS_COLUMN_LONG + " text)"
         );
     }
 
@@ -74,12 +83,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 if(!(columns[0].compareTo("gid")==0)){
                     ContentValues cv = new ContentValues();
                     cv.put(UPAS_COLUMN_ID, Integer.valueOf(columns[0].trim()));
-                    cv.put(UPAS_COLUMN_NAME, columns[1].trim());
-                    cv.put(UPAS_COLUMN_STREET, columns[2].trim());
-                    cv.put(UPAS_COLUMN_NUMBER, columns[3].trim());
-                    cv.put(UPAS_COLUMN_DISTRICT, columns[4].trim());
-                    cv.put(UPAS_COLUMN_CITY, columns[5].trim());
-                    cv.put(UPAS_COLUMN_STATE, columns[6].trim());
+                    cv.put(UPAS_COLUMN_CEP, columns[1].trim());
+                    cv.put(UPAS_COLUMN_STATE, columns[2].trim());
+                    cv.put(UPAS_COLUMN_CITY, columns[3].trim());
+                    cv.put(UPAS_COLUMN_NAME, columns[4].trim());
+                    cv.put(UPAS_COLUMN_DISTRICT, columns[5].trim());
+                    cv.put(UPAS_COLUMN_NUMBER, columns[6].trim());
+                    cv.put(UPAS_COLUMN_STREET, columns[7].trim());
+                    cv.put(UPAS_COLUMN_PHONE, columns[8].trim());
+                    cv.put(UPAS_COLUMN_PORTE, columns[12].trim());
+                    cv.put(UPAS_COLUMN_LAT, columns[13].trim());
+                    cv.put(UPAS_COLUMN_LONG, columns[14].trim());
                     db.insert(UPAS_TABLE_NAME, null, cv);
                 }
 
@@ -98,20 +112,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public ArrayList<String> getAllData()
+    public HashMap<String,ArrayList<String>> getUPAMainData()
     {
-        ArrayList<String> array_list = new ArrayList<String>();
+        HashMap<String,ArrayList<String>> upaData = new HashMap<>();
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from "+ UPAS_TABLE_NAME, null );
+        Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_TABLE_NAME, null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
-            array_list.add(res.getString(res.getColumnIndex(UPAS_COLUMN_ID)));
+            ArrayList<String> singleUPA = new ArrayList<>();
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NAME)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STREET)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NUMBER)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_DISTRICT)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_CITY)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STATE)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_LAT)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_LONG)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_PORTE)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_PHONE)));
+
+            upaData.put(res.getString(res.getColumnIndex(UPAS_COLUMN_ID)), singleUPA);
             res.moveToNext();
         }
-        return array_list;
+        return upaData;
     }
 
 
