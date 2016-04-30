@@ -59,13 +59,15 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         placeList = new ArrayList<HealthPlace>();
         nearestKeys = new ArrayList<String>();
 
+
+        loadData();
         //loaddata on background
-        new Thread(new Runnable() {
+        /*new Thread(new Runnable() {
             @Override
             public void run() {
                 loadData();
             }
-        });
+        });*/
 
     }
 
@@ -78,9 +80,9 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
 
     @Override
     public void onBindViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder holder, int position) {
-        if (position >= getItemCount()-1){
+        /*if (position >= getItemCount()-1){
             loadMore();
-        }
+        }*/
         HealthPlace model = placeList.get(position);
         this.populateViewHolder(holder, model, position);
     }
@@ -102,6 +104,15 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
     }
 
     private void loadData(){
+
+
+        placeList.add(new HealthPlace("UPA Sãens Peña", "Rua Conde de Bonfim, 330", "(21) 2222-3333"));
+        placeList.add(new HealthPlace("UPA Botafogo", "Rua São Clemente, 227", "(21) 3333-4444"));
+
+
+    }
+
+   /* private void loadData(){
         InputStream inputStream = context.getResources().openRawResource(R.raw.upa_funcionamento_latlng);
         CSVReader csvFile = new  CSVReader (inputStream);
         HashMap<String, String[]> currentData = csvFile.read();
@@ -128,12 +139,12 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
             notifyItemInserted(placeList.size() - 1);
         }
 
-    }
+    }*/
 
 
-    public void loadMore(){
+    /*public void loadMore(){
         //TODO: write after data model specification
-    }
+    }*/
 
     public void setPlaceList(List<HealthPlace> placeList) {
         this.placeList = placeList;
