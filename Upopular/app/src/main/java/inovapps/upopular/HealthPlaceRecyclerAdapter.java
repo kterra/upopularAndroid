@@ -209,12 +209,15 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
                 detailsIntent.putExtra("nome", place.get(Constants.NAME));
 
                 // Address
-                detailsIntent.putExtra("logradouro", place.get(Constants.STREET));
+                detailsIntent.putExtra("logradouro", place.get(Constants.STREET)+ ", " + place.get(Constants.NUMBER));
                 detailsIntent.putExtra("bairro", place.get(Constants.DISTRICT));
                 detailsIntent.putExtra("cidade", place.get(Constants.CITY));
                 detailsIntent.putExtra("estado", place.get(Constants.STATE));
                 detailsIntent.putExtra("porte", place.get(Constants.PORT));
                 detailsIntent.putExtra("telefone", place.get(Constants.PHONE));
+                detailsIntent.putExtra("lat", place.get(Constants.LAT));
+                detailsIntent.putExtra("long", place.get(Constants.LONG));
+
 
                 context.startActivity(detailsIntent);
             }

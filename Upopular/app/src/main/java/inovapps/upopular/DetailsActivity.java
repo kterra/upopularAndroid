@@ -83,7 +83,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
         else{
             callButton.setVisibility(View.VISIBLE);
-            callButton.setText(telefone );
+            callButton.setText(telefone);
         }
 
 

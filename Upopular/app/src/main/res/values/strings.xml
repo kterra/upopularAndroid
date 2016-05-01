@@ -5,13 +5,13 @@
     <string name="title_activity_list">ListActivity</string>
 
     <string name="upa_title">UPA Título</string>
-    <string name="upa_street_tag">Logradouro  </string>
+    <string name="upa_street_tag">Logradouro:</string>
     <string name="upa_street"> Rua dos Bobos, 345</string>
-    <string name="upa_district_tag">Bairro </string>
+    <string name="upa_district_tag">Bairro:</string>
     <string name="upa_district">Vila Isabel</string>
-    <string name="upa_city_tag">Cidade</string>
+    <string name="upa_city_tag">Cidade:</string>
     <string name="upa_city">Rio de Janeiro</string>
-    <string name="upa_state_tag">Estado</string>
+    <string name="upa_state_tag">UF:</string>
     <string name="upa_state">Rio de Janeiro</string>
     <string name="upa_porte_tag">Porte:</string>
     <string name="upa_porte">I</string>
