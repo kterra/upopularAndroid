@@ -39,12 +39,15 @@
         </activity>
         <activity
             android:name=".HealthListActivity"
-            android:label="@string/title_activity_list">
-        </activity>
+            android:label="@string/title_activity_list" />
         <activity
             android:name=".DetailsActivity"
             android:label="@string/title_activity_upadetails"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".InfoActivity"
+            android:label="@string/title_activity_info_test"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

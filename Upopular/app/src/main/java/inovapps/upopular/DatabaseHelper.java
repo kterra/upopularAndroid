@@ -35,7 +35,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String UPAS_COLUMN_CITY = "cidade";
     public static final String UPAS_COLUMN_STATE = "estado";
     public static final String UPAS_COLUMN_LAT = "latitude";
+    public static final String UPAS_COLUMN_COSLAT = "cos_lat";
+    public static final String UPAS_COLUMN_SINLAT = "sin_lat";
     public static final String UPAS_COLUMN_LONG = "longitude";
+    public static final String UPAS_COLUMN_COSLONG = "cos_long";
+    public static final String UPAS_COLUMN_SINLONG = "sin_long";
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -55,8 +60,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         + UPAS_COLUMN_STREET + " text, "
                         + UPAS_COLUMN_PHONE + " text, "
                         + UPAS_COLUMN_PORTE + " text, "
-                        + UPAS_COLUMN_LAT + " text, "
-                        + UPAS_COLUMN_LONG + " text)"
+                        + UPAS_COLUMN_LAT + " double, "
+                        + UPAS_COLUMN_LONG + " double) "
+//
         );
     }
 
@@ -92,8 +98,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     cv.put(UPAS_COLUMN_STREET, columns[7].trim());
                     cv.put(UPAS_COLUMN_PHONE, columns[8].trim());
                     cv.put(UPAS_COLUMN_PORTE, columns[12].trim());
-                    cv.put(UPAS_COLUMN_LAT, columns[13].trim());
-                    cv.put(UPAS_COLUMN_LONG, columns[14].trim());
+
+                    double latitude = Double.valueOf(columns[13].trim());
+                    double longitude = Double.valueOf(columns[14].trim());
+
+                    cv.put(UPAS_COLUMN_LAT, latitude);
+                    cv.put(UPAS_COLUMN_LONG, longitude);
+
+//                    HashMap<String, Double> preCalculatedValues = preCalculateDistanceValues(latitude, longitude);
+//
+//                    cv.put(UPAS_COLUMN_COSLAT, preCalculatedValues.get(UPAS_COLUMN_COSLAT));
+//                    cv.put(UPAS_COLUMN_SINLAT, preCalculatedValues.get(UPAS_COLUMN_SINLAT));
+//                    cv.put(UPAS_COLUMN_COSLONG, preCalculatedValues.get(UPAS_COLUMN_COSLONG));
+//                    cv.put(UPAS_COLUMN_SINLONG, preCalculatedValues.get(UPAS_COLUMN_SINLONG));
+
                     db.insert(UPAS_TABLE_NAME, null, cv);
                 }
 
@@ -112,13 +130,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public HashMap<String,ArrayList<String>> getUPAMainData()
+    public HashMap<String,ArrayList<String>> getUPAMainData(double CUR_lat, double CUR_lng)
     {
         HashMap<String,ArrayList<String>> upaData = new HashMap<>();
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_TABLE_NAME, null );
+
+        Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_TABLE_NAME +
+                " ORDER BY abs(latitude - " + CUR_lat + ") + abs(longitude - "+ CUR_lng + ") LIMIT 5;", null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
@@ -139,6 +159,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return upaData;
     }
+
+
+//
+//    private  HashMap<String, Double> preCalculateDistanceValues(double latitude, double longitude){
+//
+//        HashMap<String, Double> preCalculatedValues =  new HashMap<>();
+//
+//
+//        preCalculatedValues.put(UPAS_COLUMN_COSLAT, Math.cos(MathUtil.deg2rad(latitude)));
+//        preCalculatedValues.put(UPAS_COLUMN_SINLAT, Math.sin(MathUtil.deg2rad(latitude)));
+//        preCalculatedValues.put(UPAS_COLUMN_COSLONG, Math.cos(MathUtil.deg2rad(longitude)));
+//        preCalculatedValues.put(UPAS_COLUMN_SINLONG, Math.sin(MathUtil.deg2rad(longitude)));
+//
+//
+//        return  preCalculatedValues;
+//    }
 
 
 

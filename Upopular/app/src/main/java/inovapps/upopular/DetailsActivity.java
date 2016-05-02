@@ -108,4 +108,9 @@ public class DetailsActivity extends AppCompatActivity {
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
         startActivity(intent);
     }
+
+    public void getInfo(View button){
+        Intent intent = new Intent(DetailsActivity.this, InfoActivity.class);
+        startActivity(intent);
+    }
 }

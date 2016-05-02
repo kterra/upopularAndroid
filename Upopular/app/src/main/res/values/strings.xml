@@ -14,6 +14,9 @@
     <string name="upa_state_tag">UF:</string>
     <string name="upa_state">Rio de Janeiro</string>
     <string name="upa_porte_tag">Porte:</string>
+    <string name="upa_porte1_tag">UPA Porte 1: tem no mínimo 7 leitos de observação. Capacidade de atender até 150 pacientes por dia. População na área de abrangência de 50 mil a 100 mil habitantes;</string>
+    <string name="upa_porte2_tag">UPA Porte 2: tem no mínimo 11 leitos de observação. Capacidade de atender até 250 pacientes por dia. População na área de abrangência de 100 mil a 200 mil habitantes;</string>
+    <string name="upa_porte3_tag">UPA Porte 3: tem no mínimo 15 leitos de observação. Capacidade de atender até 350 pacientes por dia. População na área de abrangência de 200 mil a 300 mil habitantes.</string>
     <string name="upa_porte">I</string>
     <string name="phone_number"> 21 33458679</string>
     <string name="getroute">Como chegar?</string>
@@ -109,4 +112,5 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+    <string name="title_activity_info_test">InfoTestActivity</string>
 </resources>

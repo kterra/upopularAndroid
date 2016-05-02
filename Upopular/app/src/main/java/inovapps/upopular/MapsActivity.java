@@ -5,12 +5,16 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
+import android.content.res.Resources;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,30 +25,48 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.*;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWindowClickListener, OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWindowClickListener,GoogleMap.OnCameraChangeListener, OnMapReadyCallback{
 
     private GoogleMap mMap;
     private HashMap<String,ArrayList<String>> upaData;
     private ArrayList<String> clickedUpaInfo;
     private boolean upaSelected;
     private DatabaseHelper dbHelper;
+    private Location lastPosition;
+    private Location currentPosition;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-       //MapsActivity.this.deleteDatabase("Upopular.db");
+        lastPosition = new Location("");
+        lastPosition.setLatitude(0);
+        lastPosition.setLongitude(0);
+        currentPosition = new Location("");
+        currentPosition.setLatitude(0);
+        currentPosition.setLongitude(0);
+
+       MapsActivity.this.deleteDatabase("Upopular.db");
         dbHelper = new DatabaseHelper(MapsActivity.this);
 
 
@@ -64,6 +86,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d("MAIN", "ON RESUME");
+    }
+
+
+
 
 
     /**
@@ -81,9 +112,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
         mMap = googleMap;
         mMap.setOnInfoWindowClickListener(this);
+       // mMap.setOnCameraChangeListener(this);
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
         try {
             mMap.setMyLocationEnabled(true);
+
         } catch (SecurityException e) {
 
         }
@@ -107,11 +141,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
                 // Getting the position from the marker
                 String kind = arg0.getTitle();
                 if (kind.equals("upa")) {
-                   clickedUpaInfo = upaData.get(arg0.getSnippet());
+                    clickedUpaInfo = upaData.get(arg0.getSnippet());
 
                     // Getting reference to the TextView to set latitude
                     TextView title = (TextView) v.findViewById(R.id.tv_title);
                     title.setText(clickedUpaInfo.get(0));
+                    title.setTextColor(getResources().getColor(R.color.orange));
                     // Getting reference to the TextView to set longitude
                     TextView subtitle1 = (TextView) v.findViewById(R.id.tv_subtitle1);
                     subtitle1.setText(clickedUpaInfo.get(1) + ", " + clickedUpaInfo.get(2) + "-" + clickedUpaInfo.get(3));
@@ -129,7 +164,25 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
         });
 
-        new AccessDataBase().execute("start");
+        lastPosition.setLatitude(mMap.getCameraPosition().target.latitude);
+        lastPosition.setLongitude(mMap.getCameraPosition().target.longitude);
+
+
+        new AccessDataBase().execute(lastPosition);
+
+    }
+
+    @Override
+    public void onCameraChange(final CameraPosition position) {
+
+        currentPosition.setLatitude(position.target.latitude);
+        currentPosition.setLongitude(position.target.longitude);
+
+        if(currentPosition.distanceTo(lastPosition) > 1000){
+            new AccessDataBase().execute(currentPosition);
+            lastPosition.setLatitude(currentPosition.getLatitude());
+            lastPosition.setLongitude(currentPosition.getLongitude());
+        }
 
 
     }
@@ -166,7 +219,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         startActivity(listIntent);
     }
 
-    public class AccessDataBase extends AsyncTask<String, String, HashMap<String,ArrayList<String>>> {
+
+
+    public class AccessDataBase extends AsyncTask<Location, String, HashMap<String,ArrayList<String>>> {
 
 
         private ProgressDialog dialog;
@@ -186,13 +241,22 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         }
 
         @Override
-        protected HashMap<String, ArrayList<String>> doInBackground(String... params) {
+        protected HashMap<String, ArrayList<String>> doInBackground(Location... params) {
 
             InputStream inputStream = getResources().openRawResource(R.raw.upa_funcionamento_georref);
-            //dbHelper.insertData(inputStream);
+            dbHelper.insertData(inputStream);
 
+            double currentLat = params[0].getLatitude();
+//            double currentCosLat = Math.cos(MathUtil.deg2rad(currentLat));
+//            double currentSinLat = Math.sin(MathUtil.deg2rad(currentLat));
 
-            upaData = dbHelper.getUPAMainData();
+            double currentLng = params[0].getLongitude();
+//            double currentCosLng = Math.cos(MathUtil.deg2rad(currentLng));
+//            double currentSinLng = Math.sin(MathUtil.deg2rad(currentLng));
+
+           // double cos_allowed_distance = Math.cos(20.0 / 6371);
+
+            upaData = dbHelper.getUPAMainData(currentLat, currentLng);
 
             return upaData;
         }

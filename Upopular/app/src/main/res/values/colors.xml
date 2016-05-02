@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#FFFFFF</color>
-    <color name="colorPrimaryDark">#d63900</color>
+    <color name="colorPrimaryDark">#cc0000</color>
     <color name="colorAccent">#FF4081</color>
     <color name="lightGrey">#e9e9e9</color>
     <color name="white">#DDFFFFFF</color>
     <color name="black">#000000</color>
     <color name="mediumGrey">#b6b6b6</color>
     <color name="darkGrey">#7f7f7f</color>
-    <color name="orange">#d63900</color>
+    <color name="orange">#cc0000</color>
 
-    <color name="call_button_backgrond_color">#EEF9F9F9</color>
-    <color name="call_button_backgrond_color_pressed">#CCFFFFFF</color>
-    <color name="call_button_stroke_color_focused">#CCF9F9F9</color>
+    <color name="call_button_backgrond_color">#EEcc0000</color>
+    <color name="call_button_backgrond_color_pressed">#AAcc0000</color>
+    <color name="call_button_stroke_color_focused">#CCcc0000</color>
 
 </resources>
