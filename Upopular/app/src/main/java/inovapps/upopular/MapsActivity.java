@@ -50,6 +50,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     private GoogleMap mMap;
     private HashMap<String,ArrayList<String>> upaData;
+    private HashMap<String,ArrayList<String>> phBrasilData;
     private ArrayList<String> clickedUpaInfo;
     private boolean upaSelected;
     private boolean userGestured;
