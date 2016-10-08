@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
@@ -29,6 +30,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.*;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -43,15 +45,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWindowClickListener,GoogleMap.OnCameraChangeListener, OnMapReadyCallback{
+public class MapsActivity extends FragmentActivity implements OnInfoWindowClickListener, OnMapReadyCallback, OnCameraMoveStartedListener, OnCameraIdleListener
+{
 
     private GoogleMap mMap;
     private HashMap<String,ArrayList<String>> upaData;
     private ArrayList<String> clickedUpaInfo;
     private boolean upaSelected;
+    private boolean userGestured;
     private DatabaseHelper dbHelper;
     private Location lastPosition;
     private Location currentPosition;
+    private SQLiteDatabase db;
 
 
     @Override
@@ -66,8 +71,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         currentPosition.setLatitude(0);
         currentPosition.setLongitude(0);
 
-       MapsActivity.this.deleteDatabase("Upopular.db");
         dbHelper = new DatabaseHelper(MapsActivity.this);
+
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -112,7 +117,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
         mMap = googleMap;
         mMap.setOnInfoWindowClickListener(this);
-       // mMap.setOnCameraChangeListener(this);
+        mMap.setOnCameraIdleListener(this);
+        mMap.setOnCameraMoveStartedListener(this);
+
+
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
         try {
@@ -172,20 +180,32 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
     }
 
+
     @Override
-    public void onCameraChange(final CameraPosition position) {
+    public void onCameraMoveStarted(int reason) {
 
-        currentPosition.setLatitude(position.target.latitude);
-        currentPosition.setLongitude(position.target.longitude);
-
-        if(currentPosition.distanceTo(lastPosition) > 1000){
-            new AccessDataBase().execute(currentPosition);
-            lastPosition.setLatitude(currentPosition.getLatitude());
-            lastPosition.setLongitude(currentPosition.getLongitude());
+        if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
+            userGestured = true;
         }
-
-
     }
+
+    @Override
+    public void onCameraIdle() {
+
+        if(userGestured == true){
+
+            mMap.clear();
+            currentPosition.setLatitude(mMap.getCameraPosition().target.latitude);
+            currentPosition.setLongitude(mMap.getCameraPosition().target.longitude);
+
+                new AccessDataBase().execute(currentPosition);
+                lastPosition.setLatitude(currentPosition.getLatitude());
+                lastPosition.setLongitude(currentPosition.getLongitude());
+
+            userGestured = false;
+        }
+    }
+
 
     @Override
     public void onInfoWindowClick(Marker marker) {
@@ -232,19 +252,18 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
         @Override
         protected void onPreExecute() {
-            dialog = new ProgressDialog(MapsActivity.this);
-            dialog.setTitle("Carregando os dados");
-            dialog.setMessage("Por favor, aguarde...");
-            dialog.setCancelable(false);
-            dialog.setIcon(android.R.drawable.ic_dialog_info);
-            dialog.show();
+//            dialog = new ProgressDialog(MapsActivity.this);
+//            dialog.setTitle("Carregando os dados");
+//            dialog.setMessage("Por favor, aguarde...");
+//            dialog.setCancelable(false);
+//            dialog.setIcon(android.R.drawable.ic_dialog_info);
+//            dialog.show();
         }
 
         @Override
         protected HashMap<String, ArrayList<String>> doInBackground(Location... params) {
 
-            InputStream inputStream = getResources().openRawResource(R.raw.upa_funcionamento_georref);
-            dbHelper.insertData(inputStream);
+
 
             double currentLat = params[0].getLatitude();
 //            double currentCosLat = Math.cos(MathUtil.deg2rad(currentLat));
@@ -282,9 +301,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
 
             }
 
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
+//            if (dialog.isShowing()) {
+//                dialog.dismiss();
+//            }
 
             if (data.size() != 0) {
                 Toast.makeText(MapsActivity.this, data.size() + "File is built Successfully!" + "\n", Toast.LENGTH_LONG).show();
