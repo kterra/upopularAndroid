@@ -1,10 +1,12 @@
 package inovapps.upopular;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -29,7 +31,13 @@ public class HealthListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_health_list);
 
         Intent srcIntent = getIntent();
-        upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
+        if (Intent.ACTION_SEARCH.equals(srcIntent.getAction())) {
+            String query = srcIntent.getStringExtra(SearchManager.QUERY);
+            doMySearch(query);
+            upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
+        } else{
+            upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
+        }
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         healthPlaceRecyclerView = (RecyclerView) findViewById(R.id.places_recycler_view);
@@ -54,5 +62,11 @@ public class HealthListActivity extends AppCompatActivity {
             healthPlaceRecyclerView.setAdapter(UPAadapter);
         }
     }
+
+    private void doMySearch(String query){
+        //do nothing
+        Log.d("SEARCH", query);
+    }
+
 
 }

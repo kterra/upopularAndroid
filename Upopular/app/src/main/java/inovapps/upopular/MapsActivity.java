@@ -66,7 +66,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnInfoWi
         currentPosition.setLatitude(0);
         currentPosition.setLongitude(0);
 
-       MapsActivity.this.deleteDatabase("Upopular.db");
+        MapsActivity.this.deleteDatabase("Upopular.db");
         dbHelper = new DatabaseHelper(MapsActivity.this);
 
 

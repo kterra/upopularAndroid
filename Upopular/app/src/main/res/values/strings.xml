@@ -113,4 +113,6 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="title_activity_info_test">InfoTestActivity</string>
+
+    <string name="search_hint">Busque UPAs ou Farmácias Populares</string>
 </resources>
