@@ -40,13 +40,15 @@
         <activity
             android:name=".HealthListActivity"
             android:label="@string/title_activity_upadetails"
-            android:theme="@style/AppTheme"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                android:resource="@xml/searchable"/>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
         <activity
             android:name=".DetailsActivity"
@@ -54,7 +56,10 @@
         <activity
             android:name=".InfoActivity"
             android:label="@string/title_activity_info_test"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".MainPager">
+
+        </activity>
     </application>
 
 </manifest>
