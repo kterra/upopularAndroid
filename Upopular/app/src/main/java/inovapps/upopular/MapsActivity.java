@@ -1,47 +1,27 @@
 package inovapps.upopular;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SyncStatusObserver;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.*;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.*;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -53,7 +33,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private HashMap<String,ArrayList<String>> upaData;
     private HashMap<String,ArrayList<String>> phBRData;
     private ArrayList<HashMap<String,ArrayList<String>>> data;
-    private ArrayList<String> clickedUpaInfo;
+    private ArrayList<String> clickedInfo;
     private boolean upaSelected;
     private boolean userGestured;
     private DatabaseHelper dbHelper;
@@ -153,19 +133,34 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
                 // Getting the position from the marker
                 String kind = arg0.getTitle();
                 if (kind.equals("upa")) {
-                    clickedUpaInfo = upaData.get(arg0.getSnippet());
+                    clickedInfo = upaData.get(arg0.getSnippet());
 
-                    // Getting reference to the TextView to set latitude
+
                     TextView title = (TextView) v.findViewById(R.id.tv_title);
-                    title.setText(clickedUpaInfo.get(0));
+                    title.setText(clickedInfo.get(0));
                     title.setTextColor(getResources().getColor(R.color.orange));
-                    // Getting reference to the TextView to set longitude
-                    TextView subtitle1 = (TextView) v.findViewById(R.id.tv_subtitle1);
-                    subtitle1.setText(clickedUpaInfo.get(1) + ", " + clickedUpaInfo.get(2) + "-" + clickedUpaInfo.get(3));
 
-                    // Getting reference to the TextView to set longitude
+                    TextView subtitle1 = (TextView) v.findViewById(R.id.tv_subtitle1);
+                    subtitle1.setText(clickedInfo.get(1) + ", " + clickedInfo.get(2) + "-" + clickedInfo.get(3));
+
+
                     TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
-                    subtitle2.setText(clickedUpaInfo.get(4) + ", " + clickedUpaInfo.get(5));
+                    subtitle2.setText(clickedInfo.get(4) + ", " + clickedInfo.get(5));
+                }
+                if (kind.equals("phbrasil")) {
+                    clickedInfo = phBRData.get(arg0.getSnippet());
+
+
+                    TextView title = (TextView) v.findViewById(R.id.tv_title);
+                    title.setText(clickedInfo.get(0));
+                    title.setTextColor(getResources().getColor(R.color.orange));
+
+                    TextView subtitle1 = (TextView) v.findViewById(R.id.tv_subtitle1);
+                    subtitle1.setText(clickedInfo.get(1) + ", " + clickedInfo.get(2));
+
+
+                    TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
+                    subtitle2.setText(clickedInfo.get(3) + ", " + clickedInfo.get(4));
                 }
 
 
@@ -220,15 +215,28 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         if (kind.equals("upa")) {
 
             intent.putExtra("tipo", "UPA");
-            intent.putExtra("nome", clickedUpaInfo.get(0));
-            intent.putExtra("logradouro", clickedUpaInfo.get(1) + ", " + clickedUpaInfo.get(2));
-            intent.putExtra("bairro", clickedUpaInfo.get(3));
-            intent.putExtra("cidade", clickedUpaInfo.get(4));
-            intent.putExtra("estado", clickedUpaInfo.get(5));
-            intent.putExtra("lat", clickedUpaInfo.get(6));
-            intent.putExtra("long", clickedUpaInfo.get(7));
-            intent.putExtra("porte", clickedUpaInfo.get(8));
-            intent.putExtra("telefone", clickedUpaInfo.get(9));
+            intent.putExtra("nome", clickedInfo.get(0));
+            intent.putExtra("logradouro", clickedInfo.get(1) + ", " + clickedInfo.get(2));
+            intent.putExtra("bairro", clickedInfo.get(3));
+            intent.putExtra("cidade", clickedInfo.get(4));
+            intent.putExtra("estado", clickedInfo.get(5));
+            intent.putExtra("lat", clickedInfo.get(6));
+            intent.putExtra("long", clickedInfo.get(7));
+            intent.putExtra("porte", clickedInfo.get(8));
+            intent.putExtra("telefone", clickedInfo.get(9));
+
+
+        }
+
+        if (kind.equals("phbrasil")) {
+
+            intent.putExtra("tipo", "phbrasil");
+            intent.putExtra("nome", clickedInfo.get(0));
+            intent.putExtra("logradouro", clickedInfo.get(1) + ", " + clickedInfo.get(2));
+            intent.putExtra("cidade", clickedInfo.get(3));
+            intent.putExtra("estado", clickedInfo.get(4));
+            intent.putExtra("lat", clickedInfo.get(5));
+            intent.putExtra("long", clickedInfo.get(6));
 
 
         }
@@ -316,8 +324,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
                 ArrayList<String> singlephBRData = entry.getValue();
 
 
-                Float upaLat = Float.valueOf(singlephBRData.get(3));
-                Float upaLong = Float.valueOf(singlephBRData.get(4));
+                Float upaLat = Float.valueOf(singlephBRData.get(5));
+                Float upaLong = Float.valueOf(singlephBRData.get(6));
 
                 LatLng phBRLatLong = new LatLng(upaLat, upaLong);
                 mMap.addMarker(new MarkerOptions()

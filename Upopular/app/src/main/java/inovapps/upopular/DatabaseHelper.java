@@ -75,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + UPAS_VIRTUAL_NAME + " (" + UPAS_VIRTUAL_NAME + ") VALUES('rebuild')";
 
     public static final String PHBRASIL_TABLE_NAME = "farmacia_popular_brasil";
+    public static final String PHBRASIL_NAME = "FARMÁCIA POPULAR DO BRASIL";
     public static final String PHBRASIL_COLUMN_ID = "gid";
     public static final String PHBRASIL_COLUMN_CEP = "nu_cep_farmacia";
     public static final String PHBRASIL_COLUMN_ADDRESS = "ds_endereco_farmacia";
@@ -269,8 +270,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         while(res.isAfterLast() == false){
             ArrayList<String> singlePHBRASIL = new ArrayList<>();
+            singlePHBRASIL.add(PHBRASIL_NAME);
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_ADDRESS)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_CEP)));
+            singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_CITY)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_STATE)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_LAT)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_LONG)));

@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 public class DetailsActivity extends AppCompatActivity {
@@ -50,8 +53,16 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         TextView districtField = (TextView) findViewById(R.id.district);
+
+        TableRow districtTableRow = (TableRow) findViewById(R.id.tableRow2);
         if(district == null || district.isEmpty()){
-            districtField.setText("Não informado");
+            if (kind.equals("phbrasil")){
+                districtTableRow.setVisibility(View.GONE);
+
+            }else{
+                districtField.setText("Não informado");
+            }
+
         }else{
             districtField.setText(district);
         }
@@ -71,8 +82,14 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         TextView porteField = (TextView) findViewById(R.id.porte);
+        LinearLayoutCompat porteLayout = (LinearLayoutCompat) findViewById(R.id.porte_layout);
         if(porte == null || porte.isEmpty()){
-            porteField.setText("Não informado");
+            if (kind.equals("phbrasil")){
+                porteLayout.setVisibility(View.GONE);
+            }else{
+                porteField.setText("Não informado");
+            }
+
         }else {
             porteField.setText(porte);
         }
