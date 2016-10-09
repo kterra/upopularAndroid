@@ -248,6 +248,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     public void showList(View button) {
         Intent listIntent = new Intent(this, HealthListActivity.class);
         listIntent.putExtra("UPAs", upaData);
+        listIntent.putExtra("latitude", currentPosition.getLatitude());
+        listIntent.putExtra("longitude", currentPosition.getLongitude());
         startActivity(listIntent);
     }
 

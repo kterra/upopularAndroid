@@ -19,6 +19,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,6 +41,7 @@ public class HealthListActivity extends AppCompatActivity {
     private HealthPlaceRecyclerAdapter UPAadapter;
 
     private Map<String, List<String>> upaData;
+    private LatLng userLatLng;
 
     private boolean lookingForPharmacies;
 
@@ -52,6 +55,9 @@ public class HealthListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         Intent srcIntent = getIntent();
+        double latitude = srcIntent.getDoubleExtra("latitude", 22.3);
+        double longitude = srcIntent.getDoubleExtra("longitude", 43.3);
+        userLatLng = new LatLng(latitude, longitude);
         if (Intent.ACTION_SEARCH.equals(srcIntent.getAction())) {
             String query = srcIntent.getStringExtra(SearchManager.QUERY);
             doMySearch(query);
@@ -125,28 +131,26 @@ public class HealthListActivity extends AppCompatActivity {
     private void doMySearch(String query){
         //do nothing
         Log.d("SEARCH", query);
-        new AccessDataBaseList(this).execute(query);
+        new AccessDataBaseList().execute(query);
     }
 
     public class AccessDataBaseList extends AsyncTask<String, String, Map<String, List<String>>> {
 
-
-        private ProgressDialog dialog;
-        private Context mContext;
-
-        public AccessDataBaseList(Context context){
-            mContext = context;
-        }
-
+        //private ProgressDialog dialog;
+        private ProgressBar progressBar;
 
         @Override
         protected void onPreExecute() {
-            dialog = new ProgressDialog(HealthListActivity.this);
+            /*dialog = new ProgressDialog(HealthListActivity.this);
             dialog.setTitle("Carregando os dados");
             dialog.setMessage("Por favor, aguarde...");
             dialog.setCancelable(false);
             dialog.setIcon(android.R.drawable.ic_dialog_info);
-            dialog.show();
+            dialog.show();*/
+
+            progressBar =  (ProgressBar) findViewById(R.id.search_progress_bar);
+            progressBar.setVisibility(View.VISIBLE);
+
         }
 
         @Override
@@ -162,11 +166,11 @@ public class HealthListActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(Map<String, List<String>> data) {
-
-            LatLng userLocation = new LatLng(-22.924315, -43.2411521);
-            UPAadapter = new HealthPlaceRecyclerAdapter(mContext, userLocation, 100.00, data);
+//            LatLng userLocation = new LatLng(-22.924315, -43.2411521);
+            UPAadapter = new HealthPlaceRecyclerAdapter(HealthListActivity.this, userLatLng, 100.00, data);
             healthPlaceRecyclerView.setAdapter(UPAadapter);
-            dialog.cancel();
+            //dialog.cancel();
+            progressBar.setVisibility(View.GONE);
         }
     }
 
