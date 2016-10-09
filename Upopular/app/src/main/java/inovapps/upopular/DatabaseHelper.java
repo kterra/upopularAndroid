@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kizzyterra on 4/29/16.
@@ -66,9 +68,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + UPAS_COLUMN_NUMBER + ", "
             + UPAS_COLUMN_STREET + ", "
             + UPAS_COLUMN_PHONE + ", "
-            + UPAS_COLUMN_PORTE + ") ";
+            + UPAS_COLUMN_PORTE + ", "
+            + UPAS_COLUMN_LAT + ", "
+            + UPAS_COLUMN_LONG + ") ";
     public static final String VIRTUAL_UPAS_TABLE_REBUILD = "INSERT INTO "
-            + UPAS_VIRTUAL_NAME + "(" + UPAS_VIRTUAL_NAME + ") VALUES('rebuild')";
+            + UPAS_VIRTUAL_NAME + " (" + UPAS_VIRTUAL_NAME + ") VALUES('rebuild')";
 
     public static final String PHBRASIL_TABLE_NAME = "farmacia_popular_brasil";
     public static final String PHBRASIL_COLUMN_ID = "gid";
@@ -275,6 +279,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return phBrasilData;
     }
 
+    public Map<String, List<String>> getUpaByQuery(String query){
+
+        Map<String,List<String>> upaData = new HashMap<>();
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_VIRTUAL_NAME + " WHERE " + UPAS_VIRTUAL_NAME + " MATCH " + query +
+                " ORDER BY abs(latitude) + abs(longitude) LIMIT 50;", null );
+        res.moveToFirst();
+
+        while(res.isAfterLast() == false){
+            ArrayList<String> singleUPA = new ArrayList<>();
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NAME)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STREET)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NUMBER)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_DISTRICT)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_CITY)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STATE)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_LAT)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_LONG)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_PORTE)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_PHONE)));
+
+            upaData.put(res.getString(res.getColumnIndex(UPAS_COLUMN_ID)), singleUPA);
+            res.moveToNext();
+        }
+        return upaData;
+    }
 
 //
 //    private  HashMap<String, Double> preCalculateDistanceValues(double latitude, double longitude){

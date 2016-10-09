@@ -129,69 +129,46 @@ public class HealthListActivity extends AppCompatActivity {
 
     }
 
-//    public class AccessDataBaseList extends AsyncTask<Location, String, Map<String, List<String>>> {
-//
-//
-//        private ProgressDialog dialog;
-//
-//        public AccessDataBaseList() {
-//
-//        }
-//
-//        @Override
-//        protected void onPreExecute() {
-//            dialog = new ProgressDialog(HealthListActivity.this);
-//            dialog.setTitle("Carregando os dados");
-//            dialog.setMessage("Por favor, aguarde...");
-//            dialog.setCancelable(false);
-//            dialog.setIcon(android.R.drawable.ic_dialog_info);
-//            dialog.show();
-//        }
-//
-//        @Override
-//        protected Map<String, List<String>> doInBackground(String query) {
-////            double currentCosLng = Math.cos(MathUtil.deg2rad(currentLng));
-////            double currentSinLng = Math.sin(MathUtil.deg2rad(currentLng));
-//
-//            // double cos_allowed_distance = Math.cos(20.0 / 6371);
-//            DatabaseHelper dbHelper = new DatabaseHelper(HealthListActivity.this);
-//            upaData = dbHelper.getUpaByQuery(query);
-//
-//            return upaData;
-//        }
-//
-//        protected void onPostExecute(HashMap<String, ArrayList<String>> data) {
-//
-//            upaSelected = true;
-//            for (Map.Entry<String, ArrayList<String>> entry : data.entrySet()) {
-//
-//                String upaId = entry.getKey();
-//                ArrayList<String> singleUPAData = entry.getValue();
-//
-//                Float upaLat = Float.valueOf(singleUPAData.get(6));
-//                Float upaLong = Float.valueOf(singleUPAData.get(7));
-//
-//                LatLng upaLatLong = new LatLng(upaLat, upaLong);
-//                mMap.addMarker(new MarkerOptions()
-//                        .title("upa")
-//                        .position(upaLatLong)
-//                        .snippet(upaId)
-//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-//                mMap.moveCamera(CameraUpdateFactory.newLatLng(upaLatLong));
-//
-//            }
-//
-//            if (dialog.isShowing()) {
-//                dialog.dismiss();
-//            }
-//
-//            if (data.size() != 0) {
-//                Toast.makeText(MapsActivity.this, data.size() + "File is built Successfully!" + "\n", Toast.LENGTH_LONG).show();
-//            } else {
-//                Toast.makeText(MapsActivity.this, "File fail to build", Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//    }
+    public class AccessDataBaseList extends AsyncTask<String, String, Map<String, List<String>>> {
+
+
+        private ProgressDialog dialog;
+        private Context mContext;
+
+        public AccessDataBaseList(Context context){
+            mContext = context;
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            dialog = new ProgressDialog(HealthListActivity.this);
+            dialog.setTitle("Carregando os dados");
+            dialog.setMessage("Por favor, aguarde...");
+            dialog.setCancelable(false);
+            dialog.setIcon(android.R.drawable.ic_dialog_info);
+            dialog.show();
+        }
+
+        @Override
+        protected Map<String, List<String>> doInBackground(String... params) {
+//            double currentCosLng = Math.cos(MathUtil.deg2rad(currentLng));
+//            double currentSinLng = Math.sin(MathUtil.deg2rad(currentLng));
+
+            // double cos_allowed_distance = Math.cos(20.0 / 6371);
+            DatabaseHelper dbHelper = new DatabaseHelper(HealthListActivity.this);
+            upaData = dbHelper.getUpaByQuery(params[0]);
+
+            return upaData;
+        }
+
+        protected void onPostExecute(Map<String, List<String>> data) {
+
+            LatLng userLocation = new LatLng(-22.924315, -43.2411521);
+            UPAadapter = new HealthPlaceRecyclerAdapter(mContext, userLocation, 100.00, data);
+            healthPlaceRecyclerView.setAdapter(UPAadapter);
+        }
+    }
 
 
 //    public HashMap<String, List<String>> getUpaByQuery(String query)
