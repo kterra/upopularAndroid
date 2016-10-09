@@ -38,9 +38,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailsActivity"
+            android:name=".HealthListActivity"
             android:label="@string/title_activity_upadetails"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -48,7 +49,7 @@
                 android:resource="@xml/searchable"/>
         </activity>
         <activity
-            android:name=".HealthListActivity"
+            android:name=".DetailsActivity"
             android:label="@string/title_activity_list" />
         <activity
             android:name=".InfoActivity"
