@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,11 +18,13 @@ import java.util.HashMap;
  * Created by kizzyterra on 4/29/16.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
+    public final static String TAG = "DBHELPER";
 
     // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Upopular.db";
     public static final String UPAS_TABLE_NAME = "upas";
+    public static final String UPAS_VIRTUAL_NAME = "fts_upas";
     public static final String UPAS_COLUMN_ID = "gid";
     public static final String UPAS_COLUMN_CEP = "cep";
     public static final String UPAS_COLUMN_PHONE = "telefone";
@@ -52,6 +55,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + UPAS_COLUMN_PORTE + " text, "
             + UPAS_COLUMN_LAT + " double, "
             + UPAS_COLUMN_LONG + " double) ";
+
+    public static final String UPAS_VIRTUAL_CREATE = "create virtual table " + UPAS_VIRTUAL_NAME
+            + " using fts4(content=" + UPAS_TABLE_NAME + ", "
+            + UPAS_COLUMN_CEP + ", "
+            + UPAS_COLUMN_STATE + ", "
+            + UPAS_COLUMN_CITY + ", "
+            + UPAS_COLUMN_NAME + ", "
+            + UPAS_COLUMN_DISTRICT + ", "
+            + UPAS_COLUMN_NUMBER + ", "
+            + UPAS_COLUMN_STREET + ", "
+            + UPAS_COLUMN_PHONE + ", "
+            + UPAS_COLUMN_PORTE + ") ";
+    public static final String VIRTUAL_UPAS_TABLE_REBUILD = "INSERT INTO "
+            + UPAS_VIRTUAL_NAME + "(" + UPAS_VIRTUAL_NAME + ") VALUES('rebuild')";
+
     public static final String PHBRASIL_TABLE_NAME = "farmacia_popular_brasil";
     public static final String PHBRASIL_COLUMN_ID = "gid";
     public static final String PHBRASIL_COLUMN_CEP = "nu_cep_farmacia";
@@ -82,9 +100,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(UPAS_TABLE_CREATE);
+        Log.e(TAG, "Criando a tabela: " + UPAS_VIRTUAL_NAME);
+        db.execSQL(UPAS_VIRTUAL_CREATE);
+
         db.execSQL(PHBRASIL_TABLE_CREATE);
-
-
     }
 
     // TODO: Review this for our case
@@ -140,6 +159,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
 
             }
+            //Updates all values in the FTS_UPA table
+            Log.d(TAG, "Will rebuild UPA Virtual table");
+            db.execSQL(VIRTUAL_UPAS_TABLE_REBUILD);
         } catch (IOException e) {
             e.printStackTrace();
         }
