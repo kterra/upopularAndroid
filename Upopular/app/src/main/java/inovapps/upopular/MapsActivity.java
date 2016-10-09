@@ -1,20 +1,19 @@
 package inovapps.upopular;
 
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
-import android.location.Criteria;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.*;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,7 +35,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnInfoWindowClickListener, OnMapReadyCallback, OnCameraMoveStartedListener, OnCameraIdleListener
+public class MapsActivity extends FragmentActivity implements OnInfoWindowClickListener, OnMapReadyCallback, OnCameraMoveStartedListener, OnCameraIdleListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
 
     private GoogleMap mMap;
@@ -48,7 +50,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private DatabaseHelper dbHelper;
     private Location lastPosition;
     private Location currentPosition;
-    private SQLiteDatabase db;
+    private static final int PERMISSION_ACCESS_FINE_LOCATION = 1;
+    private GoogleApiClient googleApiClient;
 
 
     @Override
@@ -56,9 +59,10 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+
         lastPosition = new Location("");
-        lastPosition.setLatitude(0);
-        lastPosition.setLongitude(0);
+        lastPosition.setLatitude(-15.7217174);
+        lastPosition.setLongitude(-48.0783226);
         currentPosition = new Location("");
         currentPosition.setLatitude(0);
         currentPosition.setLongitude(0);
@@ -84,6 +88,90 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         btnMyLocation.setLayoutParams(params);
 
 
+        googleApiClient = new GoogleApiClient.Builder(this, this, this).addApi(LocationServices.API).build();
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "pedindo permissao!", Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_ACCESS_FINE_LOCATION);
+            Log.i(MapsActivity.class.getSimpleName(), "pediu permissao!");
+        }
+
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_ACCESS_FINE_LOCATION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        Log.i(MapsActivity.class.getSimpleName(), "Permission Granted!");
+
+                        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+                        lastPosition.setLatitude(lastLocation.getLatitude());
+                        lastPosition.setLongitude(lastLocation.getLongitude());
+
+                        mMap.clear();
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastPosition.getLatitude(), lastPosition.getLongitude()), 11.0f));
+                        new AccessDataBase().execute(lastPosition);
+                    }
+
+                }
+
+                break;
+        }
+
+
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (googleApiClient != null) {
+            googleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        googleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.i(MapsActivity.class.getSimpleName(), "Connected to Google Play Services!");
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            Log.i(MapsActivity.class.getSimpleName(), "Permission Granted!");
+
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            lastPosition.setLatitude(lastLocation.getLatitude());
+            lastPosition.setLongitude(lastLocation.getLongitude());
+
+            mMap.clear();
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastPosition.getLatitude(), lastPosition.getLongitude()), 11.0f));
+            new AccessDataBase().execute(lastPosition);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.i(MapsActivity.class.getSimpleName(), "Can't connect to Google Play Services!");
     }
 
     @Override
@@ -92,9 +180,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
         Log.d("MAIN", "ON RESUME");
     }
-
-
-
 
 
     /**
@@ -117,35 +202,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
 
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-
-
-
-        try {
-            mMap.setMyLocationEnabled(true);
-
-            // Get location from GPS if it's available
-            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-            lastPosition = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            // Location wasn't found, check the next most accurate place for the current location
-            if (lastPosition == null) {
-                Criteria criteria = new Criteria();
-                criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-                // Finds a provider that matches the criteria
-                String provider = lm.getBestProvider(criteria, true);
-                // Use the provider to get the last known location
-                lastPosition = lm.getLastKnownLocation(provider);
-            }
-
-
-        } catch (SecurityException e) {
-            lastPosition.setLatitude(-15.7217174);
-            lastPosition.setLongitude(-48.0783226);
-        }
-
-
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastPosition.getLatitude(), lastPosition.getLongitude()),10.0f));
 
 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -204,10 +260,9 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
         });
 
-
-
-
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastPosition.getLatitude(), lastPosition.getLongitude()), 11.0f));
         new AccessDataBase().execute(lastPosition);
+
 
     }
 
@@ -285,34 +340,43 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     public void hideOrUnhideUPA(View v){
 
+        Button btn = (Button) v;
         if (upaSelected){
             mMap.clear();
             if(phSelected){
                 drawPH();
             }
 
+            btn.setTextColor(Color.GRAY);
+            btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_local_hospital_unselected_24dp, 0, 0, 0);
             upaSelected = false;
         }else{
             upaSelected = true;
             drawUPA();
-
+            btn.setTextColor(ContextCompat.getColor(this, R.color.orange));
+            btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_local_hospital_24dp, 0, 0, 0);
         }
 
     }
 
     public void hideOrUnhidePH(View v){
 
+        Button btn = (Button) v;
+
         if (phSelected){
             mMap.clear();
             if(upaSelected){
                 drawUPA();
             }
-
+            btn.setTextColor(Color.GRAY);
+            btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_local_pharmacy_unselected_24dp, 0, 0, 0);
             phSelected = false;
         }else{
             phSelected = true;
             drawPH();
 
+            btn.setTextColor(ContextCompat.getColor(this, R.color.orange));
+            btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_local_pharmacy_24dp, 0, 0, 0);
         }
 
     }
