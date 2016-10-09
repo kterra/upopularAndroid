@@ -286,7 +286,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_VIRTUAL_NAME + " WHERE " + UPAS_VIRTUAL_NAME + " MATCH " + query +
+        Cursor res =  db.rawQuery( "select rowid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_VIRTUAL_NAME + " WHERE " + UPAS_VIRTUAL_NAME + " MATCH '" + query + "'" +
                 " ORDER BY abs(latitude) + abs(longitude) LIMIT 50;", null );
         res.moveToFirst();
 
@@ -303,7 +303,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_PORTE)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_PHONE)));
 
-            upaData.put(res.getString(res.getColumnIndex(UPAS_COLUMN_ID)), singleUPA);
+            upaData.put(res.getString(res.getColumnIndex("rowid")), singleUPA);
             res.moveToNext();
         }
         return upaData;

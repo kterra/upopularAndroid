@@ -125,8 +125,7 @@ public class HealthListActivity extends AppCompatActivity {
     private void doMySearch(String query){
         //do nothing
         Log.d("SEARCH", query);
-
-
+        new AccessDataBaseList(this).execute(query);
     }
 
     public class AccessDataBaseList extends AsyncTask<String, String, Map<String, List<String>>> {
@@ -167,6 +166,7 @@ public class HealthListActivity extends AppCompatActivity {
             LatLng userLocation = new LatLng(-22.924315, -43.2411521);
             UPAadapter = new HealthPlaceRecyclerAdapter(mContext, userLocation, 100.00, data);
             healthPlaceRecyclerView.setAdapter(UPAadapter);
+            dialog.cancel();
         }
     }
 
