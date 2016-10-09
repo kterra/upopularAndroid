@@ -51,7 +51,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     private GoogleMap mMap;
     private HashMap<String,ArrayList<String>> upaData;
-    private HashMap<String,ArrayList<String>> phBrasilData;
+    private HashMap<String,ArrayList<String>> phBRData;
+    private ArrayList<HashMap<String,ArrayList<String>>> data;
     private ArrayList<String> clickedUpaInfo;
     private boolean upaSelected;
     private boolean userGestured;
@@ -125,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
 
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10.0f));
         try {
             mMap.setMyLocationEnabled(true);
 
@@ -244,10 +245,10 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
 
 
-    public class AccessDataBase extends AsyncTask<Location, String, HashMap<String,ArrayList<String>>> {
+    public class AccessDataBase extends AsyncTask<Location, String, ArrayList<HashMap<String, ArrayList<String>>>>{
 
 
-        private ProgressDialog dialog;
+        //private ProgressDialog dialog;
 
         public AccessDataBase() {
 
@@ -264,7 +265,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         }
 
         @Override
-        protected HashMap<String, ArrayList<String>> doInBackground(Location... params) {
+        protected ArrayList<HashMap<String, ArrayList<String>>> doInBackground(Location... params) {
 
 
 
@@ -279,17 +280,22 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
            // double cos_allowed_distance = Math.cos(20.0 / 6371);
 
             upaData = dbHelper.getUPAMainData(currentLat, currentLng);
+            phBRData = dbHelper.getPHMainData(currentLat, currentLng);
+            data = new ArrayList<>();
+            data.add(upaData);
+            data.add(phBRData);
 
-            return upaData;
+            return data;
         }
 
-        protected void onPostExecute(HashMap<String, ArrayList<String>> data) {
+        protected void onPostExecute(ArrayList<HashMap<String, ArrayList<String>>> data) {
 
             upaSelected = true;
-            for (Entry<String, ArrayList<String>> entry : data.entrySet()) {
+            for (Entry<String, ArrayList<String>> entry : data.get(0).entrySet()) {
 
                 String upaId = entry.getKey();
                 ArrayList<String> singleUPAData = entry.getValue();
+
 
                 Float upaLat = Float.valueOf(singleUPAData.get(6));
                 Float upaLong = Float.valueOf(singleUPAData.get(7));
@@ -304,6 +310,24 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
             }
 
+            for (Entry<String, ArrayList<String>> entry : data.get(1).entrySet()) {
+
+                String phBRId = entry.getKey();
+                ArrayList<String> singlephBRData = entry.getValue();
+
+
+                Float upaLat = Float.valueOf(singlephBRData.get(3));
+                Float upaLong = Float.valueOf(singlephBRData.get(4));
+
+                LatLng phBRLatLong = new LatLng(upaLat, upaLong);
+                mMap.addMarker(new MarkerOptions()
+                        .title("phbrasil")
+                        .position(phBRLatLong)
+                        .snippet(phBRId)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(phBRLatLong));
+
+            }
 //            if (dialog.isShowing()) {
 //                dialog.dismiss();
 //            }

@@ -91,23 +91,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + PHBRASIL_COLUMN_ADDRESS + " text, "
             + PHBRASIL_COLUMN_LAT + " double, "
             + PHBRASIL_COLUMN_LONG + " double) ";
+    public  InputStream inputUPAStream;
+    public  InputStream inputPHStream;
 
 
     public DatabaseHelper(Context context) {
+
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
-        InputStream inputUPAStream = context.getResources().openRawResource(R.raw.upa_funcionamento_georref);
-        insertUPAData(inputUPAStream);
-        //InputStream inputPHStream = context.getResources().openRawResource(R.raw.farmacia_popular_brasil_original);
-        //insertPHData(inputPHStream);
+        Log.e(TAG, "before input");
+        inputUPAStream = context.getResources().openRawResource(R.raw.upa_funcionamento_georref);
+        inputPHStream = context.getResources().openRawResource(R.raw.farmacia_popular_brasil_original);
+
     }
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(UPAS_TABLE_CREATE);
         Log.e(TAG, "Criando a tabela: " + UPAS_VIRTUAL_NAME);
         db.execSQL(UPAS_VIRTUAL_CREATE);
+        insertUPAData(inputUPAStream, db);
 
         db.execSQL(PHBRASIL_TABLE_CREATE);
+        insertPHData(inputPHStream, db);
     }
 
     // TODO: Review this for our case
@@ -124,10 +129,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void insertUPAData(InputStream inStream) {
+    public void insertUPAData(InputStream inStream, SQLiteDatabase db) {
 
         BufferedReader buffer = new BufferedReader(new InputStreamReader(inStream));
-        SQLiteDatabase db = this.getWritableDatabase();
+       // SQLiteDatabase db = this.getWritableDatabase();
         String line = "";
         db.beginTransaction();
         try {
@@ -174,10 +179,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void insertPHData(InputStream inStream) {
+    public void insertPHData(InputStream inStream, SQLiteDatabase db) {
 
         BufferedReader buffer = new BufferedReader(new InputStreamReader(inStream));
-        SQLiteDatabase db = this.getWritableDatabase();
+        //SQLiteDatabase db = this.getWritableDatabase();
         String line = "";
         db.beginTransaction();
         try {
@@ -185,15 +190,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String[] columns = line.split(",");
                 if(!(columns[0].compareTo("gid")==0)){
                     ContentValues cv = new ContentValues();
-                    cv.put(PHBRASIL_COLUMN_ID, Integer.valueOf(columns[0].trim()));
-                    cv.put(PHBRASIL_COLUMN_ADDRESS, columns[5].trim());
-                    cv.put(PHBRASIL_COLUMN_CEP, columns[6].trim());
-                    cv.put(PHBRASIL_COLUMN_STATE, columns[7].trim());
-                    cv.put(PHBRASIL_COLUMN_CITY, columns[8].trim());
+                    cv.put(PHBRASIL_COLUMN_ID, Integer.valueOf(columns[0].trim().replace("\"","")));
+                    cv.put(PHBRASIL_COLUMN_ADDRESS, columns[5].trim().replace("\"", ""));
+                    cv.put(PHBRASIL_COLUMN_CEP, columns[6].trim().replace("\"", ""));
+                    cv.put(PHBRASIL_COLUMN_STATE, columns[7].trim().replace("\"", ""));
+                    cv.put(PHBRASIL_COLUMN_CITY, columns[8].trim().replace("\"", ""));
 
 
-                    double latitude = Double.valueOf(columns[1].trim());
-                    double longitude = Double.valueOf(columns[2].trim());
+                    double latitude = Double.valueOf(columns[1].trim().replace("\"", ""));
+                    double longitude = Double.valueOf(columns[2].trim().replace("\"",""));
 
                     cv.put(PHBRASIL_COLUMN_LAT, latitude);
                     cv.put(PHBRASIL_COLUMN_LONG, longitude);
@@ -217,11 +222,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public Cursor getData(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from upas where id=" + id + "", null);
-        return res;
-    }
 
     public HashMap<String,ArrayList<String>> getUPAMainData(double CUR_lat, double CUR_lng)
     {
@@ -231,11 +231,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_TABLE_NAME +
-                " ORDER BY abs(latitude - " + CUR_lat + ") + abs(longitude - "+ CUR_lng + ") LIMIT 50;", null );
+                " ORDER BY abs(latitude - " + CUR_lat + ") + abs(longitude - "+ CUR_lng + ") LIMIT 20;", null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
             ArrayList<String> singleUPA = new ArrayList<>();
+
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NAME)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STREET)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NUMBER)));
@@ -250,6 +251,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             upaData.put(res.getString(res.getColumnIndex(UPAS_COLUMN_ID)), singleUPA);
             res.moveToNext();
         }
+
+
         return upaData;
     }
 
@@ -260,8 +263,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_TABLE_NAME +
-                " ORDER BY abs(latitude - " + CUR_lat + ") + abs(longitude - "+ CUR_lng + ") LIMIT 50;", null );
+        Cursor res =  db.rawQuery( "select gid, ds_endereco_farmacia, nu_cep_farmacia, cidade, uf, lat, long from "+ PHBRASIL_TABLE_NAME +
+               " ORDER BY abs(lat - " + CUR_lat + ") + abs(long - "+ CUR_lng + ") LIMIT 20;", null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
