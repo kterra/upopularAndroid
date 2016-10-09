@@ -1,11 +1,18 @@
 package inovapps.upopular;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -16,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.*;
 
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.*;
@@ -35,6 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private ArrayList<HashMap<String,ArrayList<String>>> data;
     private ArrayList<String> clickedInfo;
     private boolean upaSelected;
+    private boolean phSelected;
     private boolean userGestured;
     private DatabaseHelper dbHelper;
     private Location lastPosition;
@@ -56,6 +65,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
 
         dbHelper = new DatabaseHelper(MapsActivity.this);
+        upaSelected= true;
+        phSelected= true;
 
 
 
@@ -66,10 +77,10 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         View mapView = (mapFragment.getFragmentManager().findFragmentById(R.id.map)).getView();
         View btnMyLocation = ((View) mapView.findViewById(1).getParent()).findViewById(2);
 
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80, 80); // size of button in dp
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) btnMyLocation.getLayoutParams(); // size of button in dp
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
         params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        params.setMargins(0, 0, 20, 150);
+        params.setMargins(0, 0, 20, 350);
         btnMyLocation.setLayoutParams(params);
 
 
@@ -106,13 +117,35 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
 
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(10.0f));
+
+
+
         try {
             mMap.setMyLocationEnabled(true);
 
-        } catch (SecurityException e) {
+            // Get location from GPS if it's available
+            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            lastPosition = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
+            // Location wasn't found, check the next most accurate place for the current location
+            if (lastPosition == null) {
+                Criteria criteria = new Criteria();
+                criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+                // Finds a provider that matches the criteria
+                String provider = lm.getBestProvider(criteria, true);
+                // Use the provider to get the last known location
+                lastPosition = lm.getLastKnownLocation(provider);
+            }
+
+
+        } catch (SecurityException e) {
+            lastPosition.setLatitude(-15.7217174);
+            lastPosition.setLongitude(-48.0783226);
         }
+
+
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastPosition.getLatitude(), lastPosition.getLongitude()),10.0f));
 
 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -171,8 +204,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
         });
 
-        lastPosition.setLatitude(mMap.getCameraPosition().target.latitude);
-        lastPosition.setLongitude(mMap.getCameraPosition().target.longitude);
+
 
 
         new AccessDataBase().execute(lastPosition);
@@ -251,7 +283,83 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         startActivity(listIntent);
     }
 
+    public void hideOrUnhideUPA(View v){
 
+        if (upaSelected){
+            mMap.clear();
+            if(phSelected){
+                drawPH();
+            }
+
+            upaSelected = false;
+        }else{
+            upaSelected = true;
+            drawUPA();
+
+        }
+
+    }
+
+    public void hideOrUnhidePH(View v){
+
+        if (phSelected){
+            mMap.clear();
+            if(upaSelected){
+                drawUPA();
+            }
+
+            phSelected = false;
+        }else{
+            phSelected = true;
+            drawPH();
+
+        }
+
+    }
+
+    public void drawUPA(){
+
+        for (Entry<String, ArrayList<String>> entry : data.get(0).entrySet()) {
+
+            String upaId = entry.getKey();
+            ArrayList<String> singleUPAData = entry.getValue();
+
+
+            Float upaLat = Float.valueOf(singleUPAData.get(6));
+            Float upaLong = Float.valueOf(singleUPAData.get(7));
+
+            LatLng upaLatLong = new LatLng(upaLat, upaLong);
+            mMap.addMarker(new MarkerOptions()
+                    .title("upa")
+                    .position(upaLatLong)
+                    .snippet(upaId)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+           // mMap.moveCamera(CameraUpdateFactory.newLatLng(upaLatLong));
+
+        }
+
+    }
+
+    public void drawPH(){
+        for (Entry<String, ArrayList<String>> entry : data.get(1).entrySet()) {
+
+            String phBRId = entry.getKey();
+            ArrayList<String> singlephBRData = entry.getValue();
+
+
+            Float upaLat = Float.valueOf(singlephBRData.get(5));
+            Float upaLong = Float.valueOf(singlephBRData.get(6));
+
+            LatLng phBRLatLong = new LatLng(upaLat, upaLong);
+            mMap.addMarker(new MarkerOptions()
+                    .title("phbrasil")
+                    .position(phBRLatLong)
+                    .snippet(phBRId)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLng(phBRLatLong));
+
+        }
+    }
 
     public class AccessDataBase extends AsyncTask<Location, String, ArrayList<HashMap<String, ArrayList<String>>>>{
 
@@ -298,44 +406,15 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
         protected void onPostExecute(ArrayList<HashMap<String, ArrayList<String>>> data) {
 
-            upaSelected = true;
-            for (Entry<String, ArrayList<String>> entry : data.get(0).entrySet()) {
-
-                String upaId = entry.getKey();
-                ArrayList<String> singleUPAData = entry.getValue();
-
-
-                Float upaLat = Float.valueOf(singleUPAData.get(6));
-                Float upaLong = Float.valueOf(singleUPAData.get(7));
-
-                LatLng upaLatLong = new LatLng(upaLat, upaLong);
-                mMap.addMarker(new MarkerOptions()
-                        .title("upa")
-                        .position(upaLatLong)
-                        .snippet(upaId)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(upaLatLong));
-
+            if(upaSelected){
+                drawUPA();
+            }
+            if(phSelected){
+                drawPH();
             }
 
-            for (Entry<String, ArrayList<String>> entry : data.get(1).entrySet()) {
-
-                String phBRId = entry.getKey();
-                ArrayList<String> singlephBRData = entry.getValue();
 
 
-                Float upaLat = Float.valueOf(singlephBRData.get(5));
-                Float upaLong = Float.valueOf(singlephBRData.get(6));
-
-                LatLng phBRLatLong = new LatLng(upaLat, upaLong);
-                mMap.addMarker(new MarkerOptions()
-                        .title("phbrasil")
-                        .position(phBRLatLong)
-                        .snippet(phBRId)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(phBRLatLong));
-
-            }
 //            if (dialog.isShowing()) {
 //                dialog.dismiss();
 //            }
