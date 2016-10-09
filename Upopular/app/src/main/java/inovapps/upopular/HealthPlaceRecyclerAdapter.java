@@ -32,16 +32,16 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         public static final int NAME = 0;
         //address
         public static final int STREET = 1;
-        public static final int NUMBER = 2;
+        public static final int NUMBER = 2;//
         //public static final int COMPLEMENT = 0;
-        public static final int DISTRICT = 3;
+        public static final int DISTRICT = 3;//
         public static final int CITY = 4;
         public static final int STATE = 5;
 
         public static final int LAT = 6;
         public static final int LONG = 7;
-        public static final int PORT = 8;
-        public static final int PHONE = 9;
+        public static final int PORT = 8;//
+        public static final int PHONE = 9;//
 
     }
 

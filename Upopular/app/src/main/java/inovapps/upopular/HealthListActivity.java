@@ -37,12 +37,9 @@ import java.util.Map;
 
 public class HealthListActivity extends AppCompatActivity implements UPAFragmentList.HealthDataHolder {
 
-    private HealthPlaceRecyclerAdapter UPAadapter;
-
     private Map<String, List<String>> upaData;
+    private Map<String, List<String>> phData;
     private LatLng userLatLng;
-
-    private boolean lookingForPharmacies;
     protected ViewPagerAdapter viewPagerAdapter;
 
     @Override
@@ -67,6 +64,8 @@ public class HealthListActivity extends AppCompatActivity implements UPAFragment
         double longitude = srcIntent.getDoubleExtra("longitude", 43.3);
         userLatLng = new LatLng(latitude, longitude);
         upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
+        phData = (Map<String, List<String>>) srcIntent.getSerializableExtra("PHs");
+
 //        if (Intent.ACTION_SEARCH.equals(srcIntent.getAction())) {
 //            String query = srcIntent.getStringExtra(SearchManager.QUERY);
 //            doMySearch(query);
@@ -136,7 +135,7 @@ public class HealthListActivity extends AppCompatActivity implements UPAFragment
         return userLatLng;
     }
 
-    public class AccessDataBaseList extends AsyncTask<String, String, Map<String, List<String>>> {
+    public class AccessDataBaseList extends AsyncTask<String, String, List<Map<String, List<String>>>> {
 
         //private ProgressDialog dialog;
         private ProgressBar progressBar;
@@ -149,21 +148,23 @@ public class HealthListActivity extends AppCompatActivity implements UPAFragment
         }
 
         @Override
-        protected Map<String, List<String>> doInBackground(String... params) {
+        protected List<Map<String, List<String>>> doInBackground(String... params) {
 //            double currentCosLng = Math.cos(MathUtil.deg2rad(currentLng));
 //            double currentSinLng = Math.sin(MathUtil.deg2rad(currentLng));
 
             // double cos_allowed_distance = Math.cos(20.0 / 6371);
             DatabaseHelper dbHelper = new DatabaseHelper(HealthListActivity.this);
             upaData = dbHelper.getUpaByQuery(params[0]);
+            //phData = dbHelper.getPHByQuery(params[0]);
 
             return upaData;
         }
 
-        protected void onPostExecute(Map<String, List<String>> data) {
+        protected void onPostExecute(List<Map<String, List<String>>> data) {
             //UPAadapter = new HealthPlaceRecyclerAdapter(HealthListActivity.this, userLatLng, 100.00, data);
             //healthPlaceRecyclerView.setAdapter(UPAadapter);
-            HealthListActivity.this.viewPagerAdapter.updateUPAs(data, userLatLng);
+            HealthListActivity.this.viewPagerAdapter.updateUPAs(data.get(0), userLatLng);
+            HealthListActivity.this.viewPagerAdapter.updatePHs(data.get(1), userLatLng);
             progressBar.setVisibility(View.GONE);
         }
     }

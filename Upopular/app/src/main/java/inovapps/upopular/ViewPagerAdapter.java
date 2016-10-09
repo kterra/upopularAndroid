@@ -29,6 +29,10 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         upaFragment.setData(data, latLng);
     }
 
+    public void updatePHs(Map<String, List<String>> data, LatLng latLng){
+      //  phFragment.setData(data, latLng);
+    }
+
     @Override
     public int getCount() {
         return tabtitles.length;
