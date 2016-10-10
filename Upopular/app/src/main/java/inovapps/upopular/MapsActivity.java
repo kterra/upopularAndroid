@@ -1,10 +1,11 @@
 package inovapps.upopular;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
@@ -24,7 +25,15 @@ import java.util.Map.*;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.*;
@@ -34,9 +43,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.location.LocationListener;
 
 public class MapsActivity extends FragmentActivity implements OnInfoWindowClickListener, OnMapReadyCallback, OnCameraMoveStartedListener, OnCameraIdleListener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
 {
 
     private GoogleMap mMap;
@@ -48,10 +58,18 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private boolean phSelected;
     private boolean userGestured;
     private DatabaseHelper dbHelper;
-    private Location lastPosition;
-    private Location currentPosition;
-    private static final int PERMISSION_ACCESS_FINE_LOCATION = 1;
+    private Location currentLocation;
     private GoogleApiClient googleApiClient;
+
+    private static final int PERMISSION_ACCESS_FINE_LOCATION = 1;
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+    private static final int LOCATION_REQUEST_INTERVAL = 30000;
+    private static final int LOCATION_REQUEST_FASTEST_INTERVAL = 5000;
+    private static final double BRASILIA_LATITUDE = -15.7217174;
+    private static final double BRASILIA_LONGITUDE = -48.0783226;
+    private static final float MAP_MIN_ZOOM = 10.0f;
+    private static final float MAP_MAX_ZOOM = 11.0f;
+
 
 
     @Override
@@ -60,13 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         setContentView(R.layout.activity_maps);
 
 
-        lastPosition = new Location("");
-        lastPosition.setLatitude(-15.7217174);
-        lastPosition.setLongitude(-48.0783226);
-        currentPosition = new Location("");
-        currentPosition.setLatitude(0);
-        currentPosition.setLongitude(0);
-
+        currentLocation = new Location("");
 
         dbHelper = new DatabaseHelper(MapsActivity.this);
         upaSelected= true;
@@ -88,47 +100,128 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         btnMyLocation.setLayoutParams(params);
 
 
+
+
         googleApiClient = new GoogleApiClient.Builder(this, this, this).addApi(LocationServices.API).build();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED ) {
             Toast.makeText(this, "pedindo permissao!", Toast.LENGTH_SHORT).show();
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_ACCESS_FINE_LOCATION);
+
             Log.i(MapsActivity.class.getSimpleName(), "pediu permissao!");
+        }else{
+            locationChecker();
         }
 
 
 
     }
 
+    public void locationChecker()
+    {
+        final LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(LOCATION_REQUEST_INTERVAL);
+        locationRequest.setFastestInterval(LOCATION_REQUEST_FASTEST_INTERVAL);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true); //this is the key ingredient
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+
+                            startLocationUpdates(locationRequest);
+
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied. But could be fixed by showing the user
+                        // a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            status.startResolutionForResult(MapsActivity.this, REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way to fix the
+                        // settings so we won't show the dialog.
+                        break;
+                }
+            }
+        });
+    }
+
+    protected void startLocationUpdates(LocationRequest mLocationRequest) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED ) {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                googleApiClient, mLocationRequest, MapsActivity.this);
+        }
+    }
+
+    public void onLocationChanged(Location location) {
+        currentLocation = location;
+        mMap.clear();
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), MAP_MAX_ZOOM));
+        new AccessDataBase().execute(currentLocation);
+        stopLocationUpdates();
+
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                googleApiClient, this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+    // Check for the integer request code originally supplied to startResolutionForResult().
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        locationChecker();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        setDefaultLocation();
+                        break;
+                }
+                break;
+        }
+    }
+
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_ACCESS_FINE_LOCATION:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        Log.i(MapsActivity.class.getSimpleName(), "Permission Granted!");
-
-                        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-                        lastPosition.setLatitude(lastLocation.getLatitude());
-                        lastPosition.setLongitude(lastLocation.getLongitude());
-
-                        mMap.clear();
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastPosition.getLatitude(), lastPosition.getLongitude()), 11.0f));
-                        new AccessDataBase().execute(lastPosition);
-                    }
-
-                }
-
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    locationChecker();
+                if(grantResults[0] == PackageManager.PERMISSION_DENIED)
+                    setDefaultLocation();
                 break;
+
         }
 
+    }
 
-
-
+    public void setDefaultLocation(){
+        currentLocation.setLatitude(BRASILIA_LATITUDE);
+        currentLocation.setLongitude(BRASILIA_LONGITUDE);
+        mMap.clear();
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), MAP_MIN_ZOOM));
+        new AccessDataBase().execute(currentLocation);
     }
 
     @Override
@@ -137,6 +230,19 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         if (googleApiClient != null) {
             googleApiClient.connect();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //stopLocationUpdates();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d("MAIN", "ON RESUME");
     }
 
     @Override
@@ -149,19 +255,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     public void onConnected(Bundle bundle) {
         Log.i(MapsActivity.class.getSimpleName(), "Connected to Google Play Services!");
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
 
-            Log.i(MapsActivity.class.getSimpleName(), "Permission Granted!");
 
-            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            lastPosition.setLatitude(lastLocation.getLatitude());
-            lastPosition.setLongitude(lastLocation.getLongitude());
-
-            mMap.clear();
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastPosition.getLatitude(), lastPosition.getLongitude()), 11.0f));
-            new AccessDataBase().execute(lastPosition);
-        }
     }
 
     @Override
@@ -172,14 +267,11 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i(MapsActivity.class.getSimpleName(), "Can't connect to Google Play Services!");
+        setDefaultLocation();
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
 
-        Log.d("MAIN", "ON RESUME");
-    }
 
 
     /**
@@ -260,8 +352,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
         });
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastPosition.getLatitude(), lastPosition.getLongitude()), 11.0f));
-        new AccessDataBase().execute(lastPosition);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 11.0f));
+        new AccessDataBase().execute(currentLocation);
 
 
     }
@@ -281,12 +373,11 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         if(userGestured == true){
 
             mMap.clear();
-            currentPosition.setLatitude(mMap.getCameraPosition().target.latitude);
-            currentPosition.setLongitude(mMap.getCameraPosition().target.longitude);
+            currentLocation.setLatitude(mMap.getCameraPosition().target.latitude);
+            currentLocation.setLongitude(mMap.getCameraPosition().target.longitude);
 
-                new AccessDataBase().execute(currentPosition);
-                lastPosition.setLatitude(currentPosition.getLatitude());
-                lastPosition.setLongitude(currentPosition.getLongitude());
+            new AccessDataBase().execute(currentLocation);
+
 
             userGestured = false;
         }
@@ -330,8 +421,10 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         Intent listIntent = new Intent(this, HealthListActivity.class);
         listIntent.putExtra("UPAs", upaData);
         listIntent.putExtra("PHs", phBRData);
-        listIntent.putExtra("latitude", currentPosition.getLatitude());
-        listIntent.putExtra("longitude", currentPosition.getLongitude());
+
+        listIntent.putExtra("latitude", currentLocation.getLatitude());
+        listIntent.putExtra("longitude", currentLocation.getLongitude());
+
         startActivity(listIntent);
     }
 

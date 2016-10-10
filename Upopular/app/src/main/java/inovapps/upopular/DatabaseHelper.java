@@ -204,7 +204,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         BufferedReader buffer = new BufferedReader(new InputStreamReader(inStream));
         //SQLiteDatabase db = this.getWritableDatabase();
-        String line = "";
+        String line;
         db.beginTransaction();
         try {
             while ((line = buffer.readLine()) != null) {
