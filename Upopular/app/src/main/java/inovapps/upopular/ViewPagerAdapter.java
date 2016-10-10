@@ -6,7 +6,6 @@ package inovapps.upopular;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -17,8 +16,8 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     // Tab Titles
     private String tabtitles[] = new String[] { "UPAs", "Farmácias"};
-    private UPAFragmentList upaFragment;
-    //private PHFragmentList = phFragment;
+    private HealthPlaceFragmentList upaFragment;
+    private HealthPlaceFragmentList phFragment;
 
 
     public ViewPagerAdapter(FragmentManager fm) {
@@ -30,7 +29,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     }
 
     public void updatePHs(Map<String, List<String>> data, LatLng latLng){
-      //  phFragment.setData(data, latLng);
+        phFragment.setData(data, latLng);
     }
 
     @Override
@@ -41,15 +40,15 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            // Open UPAFragmentList.java
+            // Open HealthPlaceFragmentList.java
             case 0:
-                upaFragment = new UPAFragmentList();
+                upaFragment = new HealthPlaceFragmentList();
                 return upaFragment;
 
             // Open FragmentTab2.java
             case 1:
-                FragmentTab2 fragmenttab2 = new FragmentTab2();
-                return fragmenttab2;
+                phFragment = new HealthPlaceFragmentList();
+                return phFragment;
         }
         return null;
     }

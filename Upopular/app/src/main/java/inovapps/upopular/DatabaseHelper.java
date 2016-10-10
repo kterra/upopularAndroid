@@ -77,6 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + UPAS_VIRTUAL_NAME + " (" + UPAS_VIRTUAL_NAME + ") VALUES('rebuild')";
 
     public static final String PHBRASIL_TABLE_NAME = "farmacia_popular_brasil";
+    public static final String PHBRASIL_VIRTUAL_NAME = "fts_phbrasil";
     public static final String PHBRASIL_NAME = "FARMÁCIA POPULAR DO BRASIL";
     public static final String PHBRASIL_COLUMN_ID = "gid";
     public static final String PHBRASIL_COLUMN_CEP = "nu_cep_farmacia";
@@ -94,6 +95,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + PHBRASIL_COLUMN_ADDRESS + " text, "
             + PHBRASIL_COLUMN_LAT + " double, "
             + PHBRASIL_COLUMN_LONG + " double) ";
+    public static final String VIRTUAL_PHBRASIL_TABLE_REBUILD = "INSERT INTO "
+            + PHBRASIL_VIRTUAL_NAME + " (" + PHBRASIL_VIRTUAL_NAME + ") VALUES('rebuild')";
     public  InputStream inputUPAStream;
     public  InputStream inputPHStream;
 
@@ -215,8 +218,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                     db.insert(PHBRASIL_TABLE_NAME, null, cv);
                 }
-
             }
+            Log.d(TAG, "Will rebuild UPA Virtual table");
+            db.execSQL(VIRTUAL_PHBRASIL_TABLE_REBUILD);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -295,7 +299,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor res =  db.rawQuery( "select rowid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_VIRTUAL_NAME + " WHERE " + UPAS_VIRTUAL_NAME + " MATCH '" + query + "'" +
-                " ORDER BY abs(lat - " + currentPos.latitude + ") + abs(long - "+ currentPos.longitude + ") LIMIT 20;", null );
+                " ORDER BY abs(latitude - " + currentPos.latitude + ") + abs(longitude - "+ currentPos.longitude + ") LIMIT 20;", null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
@@ -326,7 +330,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor res =  db.rawQuery( "select rowid, ds_endereco_farmacia, nu_cep_farmacia, cidade, uf, lat, long from "+ PHBRASIL_TABLE_NAME +
-                " ORDER BY abs(lat - " + currentPos.latitude + ") + abs(long - "+ currentPos.longitude + ") LIMIT 20;", null );
+                " ORDER BY abs(latitude - " + currentPos.latitude + ") + abs(longitude - "+ currentPos.longitude + ") LIMIT 20;", null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){

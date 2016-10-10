@@ -1,19 +1,13 @@
 package inovapps.upopular;
 
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
@@ -22,20 +16,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HealthListActivity extends AppCompatActivity implements UPAFragmentList.HealthDataHolder {
+public class HealthListActivity extends AppCompatActivity implements HealthPlaceFragmentList.HealthDataHolder {
 
     private Map<String, List<String>> upaData;
     private Map<String, List<String>> phData;
@@ -65,23 +53,6 @@ public class HealthListActivity extends AppCompatActivity implements UPAFragment
         userLatLng = new LatLng(latitude, longitude);
         upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
         phData = (Map<String, List<String>>) srcIntent.getSerializableExtra("PHs");
-
-//        if (Intent.ACTION_SEARCH.equals(srcIntent.getAction())) {
-//            String query = srcIntent.getStringExtra(SearchManager.QUERY);
-//            doMySearch(query);
-//            upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
-//        } else{
-//            upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
-//        }
-//
-//        LinearLayoutManager llm = new LinearLayoutManager(this);
-//        healthPlaceRecyclerView = (RecyclerView) findViewById(R.id.places_recycler_view);
-//        healthPlaceRecyclerView.setLayoutManager(llm);
-//        healthPlaceRecyclerView.requestFocus();
-//        healthPlaceRecyclerView.setHasFixedSize(true);
-//
-//        lookingForPharmacies = false;
-//        initializeAdapters();
     }
 
     @Override
