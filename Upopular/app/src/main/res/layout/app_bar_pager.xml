@@ -5,7 +5,7 @@ xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:fitsSystemWindows="true"
-tools:context="inovapps.upopular.HealthListActivity">
+tools:context="inovapps.upopular.MainPager">
 
 <android.support.design.widget.AppBarLayout
     android:id="@+id/app_bar_main"
@@ -24,12 +24,12 @@ tools:context="inovapps.upopular.HealthListActivity">
             app:layout_scrollFlags="scroll|snap"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:menu="@menu/menu_healthlist">
+
         </android.support.v7.widget.Toolbar>
 
 </android.support.design.widget.AppBarLayout>
 
 
-<!--<include layout="@layout/content_health_list" />-->
-    <include layout="@layout/activity_main_pager" />
+<include layout="@layout/activity_main_pager" />
 
 </android.support.design.widget.CoordinatorLayout>

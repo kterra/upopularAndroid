@@ -1,18 +1,13 @@
 package inovapps.upopular;
 
-import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
@@ -21,59 +16,43 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HealthListActivity extends AppCompatActivity {
-
-    private RecyclerView healthPlaceRecyclerView;
-    private HealthPlaceRecyclerAdapter pharmacyAdapter;
-    private HealthPlaceRecyclerAdapter UPAadapter;
+public class HealthListActivity extends AppCompatActivity implements HealthPlaceFragmentList.HealthDataHolder {
 
     private Map<String, List<String>> upaData;
+    private Map<String, List<String>> phData;
     private LatLng userLatLng;
-
-    private boolean lookingForPharmacies;
+    protected ViewPagerAdapter viewPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_health_list);
 
+        //setContentView(R.layout.activity_main_pager);
+
+        // Locate the viewpager in activity_main.xml
+        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        // Set the ViewPagerAdapter into ViewPager
+        viewPager.setAdapter(viewPagerAdapter);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
+//
         Intent srcIntent = getIntent();
         double latitude = srcIntent.getDoubleExtra("latitude", 22.3);
         double longitude = srcIntent.getDoubleExtra("longitude", 43.3);
         userLatLng = new LatLng(latitude, longitude);
-        if (Intent.ACTION_SEARCH.equals(srcIntent.getAction())) {
-            String query = srcIntent.getStringExtra(SearchManager.QUERY);
-            doMySearch(query);
-            upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
-        } else{
-            upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
-        }
-
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        healthPlaceRecyclerView = (RecyclerView) findViewById(R.id.places_recycler_view);
-        healthPlaceRecyclerView.setLayoutManager(llm);
-        healthPlaceRecyclerView.requestFocus();
-        healthPlaceRecyclerView.setHasFixedSize(true);
-
-        lookingForPharmacies = false;
-        initializeAdapters();
+        upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
+        phData = (Map<String, List<String>>) srcIntent.getSerializableExtra("PHs");
     }
 
     @Override
@@ -81,15 +60,12 @@ public class HealthListActivity extends AppCompatActivity {
         // Inflate the options menu from XML
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_healthlist, menu);
-
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        //SearchView searchView = (SearchView) menu.findItem(R.id.menu_search_view).getActionView();
         // Assumes current activity is the searchable activity
-
         MenuItem searchItem = menu.findItem(R.id.menu_search_view);
         // Get the SearchView and set the searchable configuration
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);//MenuItemCompat.getActionView(searchItem);//menu.findItem(R.id.action_search).getActionView();
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
@@ -114,94 +90,61 @@ public class HealthListActivity extends AppCompatActivity {
         }
     }
 
-
-    private void initializeAdapters(){
-        //pharmacyAdapter = new HealthPlaceRecyclerAdapter(this,);
-        LatLng userLocation = new LatLng(-22.924315, -43.2411521);
-        UPAadapter = new HealthPlaceRecyclerAdapter(this, userLocation, 100.00, upaData);
-
-        if (lookingForPharmacies){
-            healthPlaceRecyclerView.setAdapter(pharmacyAdapter);
-        }
-        else{
-            healthPlaceRecyclerView.setAdapter(UPAadapter);
-        }
-    }
-
     private void doMySearch(String query){
         //do nothing
         Log.d("SEARCH", query);
         new AccessDataBaseList().execute(query);
     }
 
-    public class AccessDataBaseList extends AsyncTask<String, String, Map<String, List<String>>> {
+    @Override
+    public Map<String, List<String>> uploadUpaData() {
+        return upaData;
+    }
+
+    @Override
+    public Map<String, List<String>> uploadPHBrasilData() {
+        return phData;
+    }
+
+    @Override
+    public LatLng uploadLatLng() {
+        return userLatLng;
+    }
+
+    public class AccessDataBaseList extends AsyncTask<String, String, List<Map<String, List<String>>>> {
 
         //private ProgressDialog dialog;
         private ProgressBar progressBar;
 
         @Override
         protected void onPreExecute() {
-            /*dialog = new ProgressDialog(HealthListActivity.this);
-            dialog.setTitle("Carregando os dados");
-            dialog.setMessage("Por favor, aguarde...");
-            dialog.setCancelable(false);
-            dialog.setIcon(android.R.drawable.ic_dialog_info);
-            dialog.show();*/
-
             progressBar =  (ProgressBar) findViewById(R.id.search_progress_bar);
             progressBar.setVisibility(View.VISIBLE);
 
         }
 
         @Override
-        protected Map<String, List<String>> doInBackground(String... params) {
+        protected List<Map<String, List<String>>> doInBackground(String... params) {
 //            double currentCosLng = Math.cos(MathUtil.deg2rad(currentLng));
 //            double currentSinLng = Math.sin(MathUtil.deg2rad(currentLng));
 
             // double cos_allowed_distance = Math.cos(20.0 / 6371);
+            List<Map<String, List<String>>> data = new ArrayList<Map<String, List<String>>>();
             DatabaseHelper dbHelper = new DatabaseHelper(HealthListActivity.this);
-            upaData = dbHelper.getUpaByQuery(params[0]);
+            upaData = dbHelper.getUpaByQuery(params[0], userLatLng);
+            phData = dbHelper.getPHByQuery(params[0], userLatLng);
 
-            return upaData;
+            data.add(upaData);
+            data.add(phData);
+            return data;
         }
 
-        protected void onPostExecute(Map<String, List<String>> data) {
-//            LatLng userLocation = new LatLng(-22.924315, -43.2411521);
-            UPAadapter = new HealthPlaceRecyclerAdapter(HealthListActivity.this, userLatLng, 100.00, data);
-            healthPlaceRecyclerView.setAdapter(UPAadapter);
-            //dialog.cancel();
+        protected void onPostExecute(List<Map<String, List<String>>> data) {
+            //UPAadapter = new HealthPlaceRecyclerAdapter(HealthListActivity.this, userLatLng, 100.00, data);
+            //healthPlaceRecyclerView.setAdapter(UPAadapter);
+            HealthListActivity.this.viewPagerAdapter.updateUPAs(data.get(0), userLatLng);
+            HealthListActivity.this.viewPagerAdapter.updatePHs(data.get(1), userLatLng);
             progressBar.setVisibility(View.GONE);
         }
     }
-
-
-//    public HashMap<String, List<String>> getUpaByQuery(String query)
-//    {
-//        HashMap<String, List<String>> upaData = new HashMap<>();
-//
-//        //hp = new HashMap();
-//        SQLiteDatabase db = this.getReadableDatabase();
-//
-//        Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from fts_table WHERE fts_table MATCH " + query +
-//                " ORDER BY abs(latitude) + abs(longitude) LIMIT 5;", null );
-//        res.moveToFirst();
-//
-//        while(res.isAfterLast() == false){
-//            ArrayList<String> singleUPA = new ArrayList<>();
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NAME)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STREET)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NUMBER)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_DISTRICT)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_CITY)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STATE)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_LAT)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_LONG)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_PORTE)));
-//            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_PHONE)));
-//
-//            upaData.put(res.getString(res.getColumnIndex(UPAS_COLUMN_ID)), singleUPA);
-//            res.moveToNext();
-//        }
-//        return upaData;
-//    }
 }
