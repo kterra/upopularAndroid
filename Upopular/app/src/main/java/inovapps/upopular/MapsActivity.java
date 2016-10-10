@@ -68,8 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private static final double BRASILIA_LONGITUDE = -48.0783226;
     private static final float MAP_MIN_ZOOM = 10.0f;
     private static final float MAP_MAX_ZOOM = 11.0f;
-    private static  final int UPA_DATA = 0;
-    private static  final int PH_DATA = 1;
+
 
 
 
@@ -469,7 +468,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     public void drawUPA(){
 
-        for (Entry<String, ArrayList<String>> entry : data.get(UPA_DATA).entrySet()) {
+        for (Entry<String, ArrayList<String>> entry : data.get(Constants.UPA_DATA).entrySet()) {
 
             String upaId = entry.getKey();
             ArrayList<String> singleUPAData = entry.getValue();
@@ -490,7 +489,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     }
 
     public void drawPH(){
-        for (Entry<String, ArrayList<String>> entry : data.get(PH_DATA).entrySet()) {
+        for (Entry<String, ArrayList<String>> entry : data.get(Constants.PH_DATA).entrySet()) {
 
             String phBRId = entry.getKey();
             ArrayList<String> singlePhBRData = entry.getValue();

@@ -33,6 +33,8 @@ public class Constants {
 
     public static  final String UPA = "UPA";
     public static  final String PH = "PH";
+    public static  final int UPA_DATA = 0;
+    public static  final int PH_DATA = 1;
 
     public static final String ID = "gid";
     public static final String ZIPCODE = "cep";

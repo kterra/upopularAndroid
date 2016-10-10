@@ -48,8 +48,8 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 //
         Intent srcIntent = getIntent();
-        double latitude = srcIntent.getDoubleExtra("latitude", 22.3);
-        double longitude = srcIntent.getDoubleExtra("longitude", 43.3);
+        double latitude = srcIntent.getDoubleExtra(Constants.LATITUDE, 22.3);
+        double longitude = srcIntent.getDoubleExtra(Constants.LONGITUDE, 43.3);
         userLatLng = new LatLng(latitude, longitude);
         upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra(Constants.UPA);
         phData = (Map<String, List<String>>) srcIntent.getSerializableExtra(Constants.PH);
