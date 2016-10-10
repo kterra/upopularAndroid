@@ -51,8 +51,8 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         double latitude = srcIntent.getDoubleExtra("latitude", 22.3);
         double longitude = srcIntent.getDoubleExtra("longitude", 43.3);
         userLatLng = new LatLng(latitude, longitude);
-        upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra("UPAs");
-        phData = (Map<String, List<String>>) srcIntent.getSerializableExtra("PHs");
+        upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra(Constants.UPA);
+        phData = (Map<String, List<String>>) srcIntent.getSerializableExtra(Constants.PH);
     }
 
     @Override

@@ -5,16 +5,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutCompat;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 public class DetailsActivity extends AppCompatActivity {
 
     String kind, name, street, district, city, state, latitude, longitude, porte, telefone;
+
+    private static final String UNKNOWN_DATA = "Não informado";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +37,8 @@ public class DetailsActivity extends AppCompatActivity {
 
         TextView nameField = (TextView) findViewById(R.id.title);
         if(name.isEmpty()){
-            if(kind.equals("UPA")){
-                nameField.setText("UPA");
+            if(kind.equals(Constants.UPA)){
+                nameField.setText(Constants.UPA);
             }
 
         }else{
@@ -47,7 +47,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         TextView streetField = (TextView) findViewById(R.id.street);
         if(street == null || street.isEmpty()){
-            streetField.setText("Não informado");
+            streetField.setText(UNKNOWN_DATA);
         }else{
             streetField.setText(street);
         }
@@ -56,11 +56,11 @@ public class DetailsActivity extends AppCompatActivity {
 
         TableRow districtTableRow = (TableRow) findViewById(R.id.tableRow2);
         if(district == null || district.isEmpty()){
-            if (kind.equals("phbrasil")){
+            if (kind.equals(Constants.PH)){
                 districtTableRow.setVisibility(View.GONE);
 
             }else{
-                districtField.setText("Não informado");
+                districtField.setText(UNKNOWN_DATA);
             }
 
         }else{
@@ -69,14 +69,14 @@ public class DetailsActivity extends AppCompatActivity {
 
         TextView cityField = (TextView) findViewById(R.id.city);
         if(city == null || city.isEmpty()){
-            cityField.setText("Não informada");
+            cityField.setText(UNKNOWN_DATA);
         }else {
             cityField.setText(city);
         }
 
         TextView stateField = (TextView) findViewById(R.id.state);
         if(state == null || state.isEmpty()){
-            stateField.setText("Não informado");
+            stateField.setText(UNKNOWN_DATA);
         }else {
             stateField.setText(state);
         }
@@ -84,10 +84,10 @@ public class DetailsActivity extends AppCompatActivity {
         TextView porteField = (TextView) findViewById(R.id.porte);
         LinearLayoutCompat porteLayout = (LinearLayoutCompat) findViewById(R.id.porte_layout);
         if(porte == null || porte.isEmpty()){
-            if (kind.equals("phbrasil")){
+            if (kind.equals(Constants.PH)){
                 porteLayout.setVisibility(View.GONE);
             }else{
-                porteField.setText("Não informado");
+                porteField.setText(UNKNOWN_DATA);
             }
 
         }else {

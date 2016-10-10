@@ -2,7 +2,6 @@ package inovapps.upopular;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,13 +11,10 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,20 +24,7 @@ import java.util.Map;
 
 public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlaceRecyclerAdapter.HealthPlaceViewHolder> {
 
-    static class Constants {
-        public static final int NAME = 0;
-        //address
-        public static final int STREET = 1;
-        public static final int NUMBER = 2;//
-        public static final int DISTRICT = 3;
-        public static final int CEP = 4;
-        public static final int CITY = 5;
-        public static final int STATE = 6;
-        public static final int LAT = 7;
-        public static final int LONG = 8;
-        public static final int PORT = 9;
-        public static final int PHONE = 10;
-    }
+
 
     private Context context;
     //private List<HealthPlace> placeList;
@@ -84,12 +67,12 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         Collections.sort(placeList, new Comparator<List<String>>() {
             @Override
             public int compare(List<String> lhs, List<String> rhs) {
-                double lhsLat = Double.parseDouble(lhs.get(Constants.LAT));
-                double lhsLong = Double.parseDouble(lhs.get(Constants.LONG));
+                double lhsLat = Double.parseDouble(lhs.get(Constants.LAT_INDEX));
+                double lhsLong = Double.parseDouble(lhs.get(Constants.LONG_INDEX));
                 double lhsDist = Utils.distance(lhsLat, lhsLong, userLocation.latitude, userLocation.longitude);
 
-                double rhsLat = Double.parseDouble(rhs.get(Constants.LAT));
-                double rhsLong = Double.parseDouble(rhs.get(Constants.LONG));
+                double rhsLat = Double.parseDouble(rhs.get(Constants.LAT_INDEX));
+                double rhsLong = Double.parseDouble(rhs.get(Constants.LONG_INDEX));
                 double rhsDist = Utils.distance(rhsLat, rhsLong, userLocation.latitude, userLocation.longitude);
 
                 return (int) (lhsDist - rhsDist);
@@ -121,11 +104,11 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
     }
 
     public String fullAddress(List<String> data){
-        String street = data.get(Constants.STREET);
-        String number = data.get(Constants.NUMBER);
-        String district = data.get(Constants.DISTRICT);
-        String city = data.get(Constants.CITY);
-        String state = data.get(Constants.STATE);
+        String street = data.get(Constants.STREET_INDEX);
+        String number = data.get(Constants.NUMBER_INDEX);
+        String district = data.get(Constants.DISTRICT_INDEX);
+        String city = data.get(Constants.CITY_INDEX);
+        String state = data.get(Constants.STATE_INDEX);
 
         String representation = "";
         boolean shouldPutComma = false;
@@ -160,14 +143,14 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
 
     public void populateViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder viewHolder, final List<String> place, int position){
 
-        viewHolder.healthPlaceName.setText(place.get(Constants.NAME));
+        viewHolder.healthPlaceName.setText(place.get(Constants.NAME_INDEX));
         viewHolder.address.setText(fullAddress(place));
 
         DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00" );
 
-        if (place.get(Constants.LAT) != null && place.get(Constants.LONG) != null) {
-            double latitude = Double.parseDouble(place.get(Constants.LAT));
-            double longitude = Double.parseDouble(place.get(Constants.LONG));
+        if (place.get(Constants.LAT_INDEX) != null && place.get(Constants.LONG_INDEX) != null) {
+            double latitude = Double.parseDouble(place.get(Constants.LAT_INDEX));
+            double longitude = Double.parseDouble(place.get(Constants.LONG_INDEX));
             viewHolder.distance.setText( "" +
                     df2.format(Utils.distance(latitude, longitude, userLocation.latitude, userLocation.longitude)/1000.0) +
                     " km"
@@ -184,17 +167,17 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
 
                 Intent detailsIntent = new Intent(context, DetailsActivity.class);
                 detailsIntent.putExtra("tipo", "UPA");
-                detailsIntent.putExtra("nome", place.get(Constants.NAME));
+                detailsIntent.putExtra("nome", place.get(Constants.NAME_INDEX));
 
                 // Address
-                detailsIntent.putExtra("logradouro", place.get(Constants.STREET)+ ", " + place.get(Constants.NUMBER));
-                detailsIntent.putExtra("bairro", place.get(Constants.DISTRICT));
-                detailsIntent.putExtra("cidade", place.get(Constants.CITY));
-                detailsIntent.putExtra("estado", place.get(Constants.STATE));
-                detailsIntent.putExtra("porte", place.get(Constants.PORT));
-                detailsIntent.putExtra("telefone", place.get(Constants.PHONE));
-                detailsIntent.putExtra("lat", place.get(Constants.LAT));
-                detailsIntent.putExtra("long", place.get(Constants.LONG));
+                detailsIntent.putExtra("logradouro", place.get(Constants.STREET_INDEX)+ ", " + place.get(Constants.NUMBER_INDEX));
+                detailsIntent.putExtra("bairro", place.get(Constants.DISTRICT_INDEX));
+                detailsIntent.putExtra("cidade", place.get(Constants.CITY_INDEX));
+                detailsIntent.putExtra("estado", place.get(Constants.STATE_INDEX));
+                detailsIntent.putExtra("porte", place.get(Constants.PORT_INDEX));
+                detailsIntent.putExtra("telefone", place.get(Constants.PHONE_INDEX));
+                detailsIntent.putExtra("lat", place.get(Constants.LAT_INDEX));
+                detailsIntent.putExtra("long", place.get(Constants.LONG_INDEX));
 
 
                 context.startActivity(detailsIntent);

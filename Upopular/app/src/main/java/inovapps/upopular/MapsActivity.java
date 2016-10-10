@@ -32,7 +32,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -69,6 +68,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private static final double BRASILIA_LONGITUDE = -48.0783226;
     private static final float MAP_MIN_ZOOM = 10.0f;
     private static final float MAP_MAX_ZOOM = 11.0f;
+    private static  final int UPA_DATA = 0;
+    private static  final int PH_DATA = 1;
 
 
 
@@ -79,6 +80,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
 
         currentLocation = new Location("");
+        currentLocation.setLatitude(BRASILIA_LATITUDE);
+        currentLocation.setLongitude(BRASILIA_LONGITUDE);
 
         dbHelper = new DatabaseHelper(MapsActivity.this);
         upaSelected= true;
@@ -112,14 +115,14 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
             Log.i(MapsActivity.class.getSimpleName(), "pediu permissao!");
         }else{
-            locationChecker();
+            gpsEnabledChecker();
         }
 
 
 
     }
 
-    public void locationChecker()
+    public void gpsEnabledChecker()
     {
         final LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -169,6 +172,11 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         }
     }
 
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                googleApiClient, this);
+    }
+
     public void onLocationChanged(Location location) {
         currentLocation = location;
         mMap.clear();
@@ -178,10 +186,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     }
 
-    protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                googleApiClient, this);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -190,7 +194,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
             case REQUEST_CHECK_SETTINGS:
                 switch (resultCode) {
                     case Activity.RESULT_OK:
-                        locationChecker();
+                        gpsEnabledChecker();
                         break;
                     case Activity.RESULT_CANCELED:
                         setDefaultLocation();
@@ -206,10 +210,12 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_ACCESS_FINE_LOCATION:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    locationChecker();
-                if(grantResults[0] == PackageManager.PERMISSION_DENIED)
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    gpsEnabledChecker();
+                } else{
                     setDefaultLocation();
+                }
+
                 break;
 
         }
@@ -268,7 +274,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.i(MapsActivity.class.getSimpleName(), "Can't connect to Google Play Services!");
         setDefaultLocation();
-
     }
 
 
@@ -300,49 +305,40 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
             // Use default InfoWindow frame
             @Override
-            public View getInfoWindow(Marker arg0) {
+            public View getInfoWindow(Marker selectedMarker) {
                 return null;
             }
 
             // Defines the contents of the InfoWindow
             @Override
-            public View getInfoContents(Marker arg0) {
+            public View getInfoContents(Marker selectedMarker) {
 
                 // Getting view from the layout file info_window_layout
                 View v = getLayoutInflater().inflate(R.layout.info_window, null);
 
                 // Getting the position from the marker
-                String kind = arg0.getTitle();
-                if (kind.equals("upa")) {
-                    clickedInfo = upaData.get(arg0.getSnippet());
-
-
-                    TextView title = (TextView) v.findViewById(R.id.tv_title);
-                    title.setText(clickedInfo.get(0));
-                    title.setTextColor(getResources().getColor(R.color.orange));
+                String kind = selectedMarker.getTitle();
+                if (kind.equals(Constants.UPA)) {
+                    clickedInfo = upaData.get(selectedMarker.getSnippet());
 
                     TextView subtitle1 = (TextView) v.findViewById(R.id.tv_subtitle1);
-                    subtitle1.setText(clickedInfo.get(1) + ", " + clickedInfo.get(2) + "-" + clickedInfo.get(3));
+                    subtitle1.setText(clickedInfo.get(Constants.STREET_INDEX) + ", " + clickedInfo.get(Constants.NUMBER_INDEX) + "-" + clickedInfo.get(Constants.DISTRICT_INDEX));
 
-
-                    TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
-                    subtitle2.setText(clickedInfo.get(4) + ", " + clickedInfo.get(5));
                 }
-                if (kind.equals("phbrasil")) {
-                    clickedInfo = phBRData.get(arg0.getSnippet());
-
-
-                    TextView title = (TextView) v.findViewById(R.id.tv_title);
-                    title.setText(clickedInfo.get(0));
-                    title.setTextColor(getResources().getColor(R.color.orange));
+                if (kind.equals(Constants.PH)) {
+                    clickedInfo = phBRData.get(selectedMarker.getSnippet());
 
                     TextView subtitle1 = (TextView) v.findViewById(R.id.tv_subtitle1);
-                    subtitle1.setText(clickedInfo.get(1) + ", " + clickedInfo.get(2));
+                    subtitle1.setText(clickedInfo.get(Constants.STREET_INDEX));
 
-
-                    TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
-                    subtitle2.setText(clickedInfo.get(3) + ", " + clickedInfo.get(4));
                 }
+
+                TextView title = (TextView) v.findViewById(R.id.tv_title);
+                title.setText(clickedInfo.get(Constants.NAME_INDEX));
+                title.setTextColor(ContextCompat.getColor(MapsActivity.this, R.color.orange));
+
+                TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
+                subtitle2.setText(clickedInfo.get(Constants.CITY_INDEX) + ", " + clickedInfo.get(Constants.STATE_INDEX));
 
 
                 // Returning the view containing InfoWindow contents
@@ -352,7 +348,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
         });
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 11.0f));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), MAP_MIN_ZOOM));
         new AccessDataBase().execute(currentLocation);
 
 
@@ -390,28 +386,28 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         Intent intent = new Intent(MapsActivity.this, DetailsActivity.class);
 
         String kind = marker.getTitle();
-        if (kind.equals("upa")) {
+        if (kind.equals(Constants.UPA)) {
 
-            intent.putExtra("tipo", "UPA");
-            intent.putExtra("logradouro", clickedInfo.get(1) + ", " + clickedInfo.get(2));
-
-        }
-
-        if (kind.equals("phbrasil")) {
-
-            intent.putExtra("tipo", "phbrasil");
-            intent.putExtra("logradouro", clickedInfo.get(1));
+            intent.putExtra(Constants.KIND, Constants.UPA);
+            intent.putExtra(Constants.STREET, clickedInfo.get(Constants.STREET_INDEX) + ", " + clickedInfo.get(Constants.NUMBER_INDEX));
 
         }
-        intent.putExtra("nome", clickedInfo.get(0));
-        intent.putExtra("bairro", clickedInfo.get(3));
-        intent.putExtra("cep", clickedInfo.get(4));
-        intent.putExtra("cidade", clickedInfo.get(5));
-        intent.putExtra("estado", clickedInfo.get(6));
-        intent.putExtra("lat", clickedInfo.get(7));
-        intent.putExtra("long", clickedInfo.get(8));
-        intent.putExtra("porte", clickedInfo.get(9));
-        intent.putExtra("telefone", clickedInfo.get(10));
+
+        if (kind.equals(Constants.PH)) {
+
+            intent.putExtra(Constants.KIND,Constants.PH);
+            intent.putExtra(Constants.STREET, clickedInfo.get(Constants.STREET_INDEX));
+
+        }
+        intent.putExtra(Constants.NAME, clickedInfo.get(Constants.NAME_INDEX));
+        intent.putExtra(Constants.DISTRICT, clickedInfo.get(Constants.DISTRICT_INDEX));
+        intent.putExtra(Constants.ZIPCODE, clickedInfo.get(Constants.ZIPCODE_INDEX));
+        intent.putExtra(Constants.CITY, clickedInfo.get(Constants.CITY_INDEX));
+        intent.putExtra(Constants.STATE, clickedInfo.get(Constants.STATE_INDEX));
+        intent.putExtra(Constants.LATITUDE, clickedInfo.get(Constants.LAT_INDEX));
+        intent.putExtra(Constants.LONGITUDE, clickedInfo.get(Constants.LONG_INDEX));
+        intent.putExtra(Constants.PORT, clickedInfo.get(Constants.PORT_INDEX));
+        intent.putExtra(Constants.PHONE, clickedInfo.get(Constants.PHONE_INDEX));
 
         startActivity(intent);
 
@@ -419,11 +415,11 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     public void showList(View button) {
         Intent listIntent = new Intent(this, HealthListActivity.class);
-        listIntent.putExtra("UPAs", upaData);
-        listIntent.putExtra("PHs", phBRData);
+        listIntent.putExtra(Constants.UPA, upaData);
+        listIntent.putExtra(Constants.PH, phBRData);
 
-        listIntent.putExtra("latitude", currentLocation.getLatitude());
-        listIntent.putExtra("longitude", currentLocation.getLongitude());
+        listIntent.putExtra(Constants.LATITUDE, currentLocation.getLatitude());
+        listIntent.putExtra(Constants.LONGITUDE, currentLocation.getLongitude());
 
         startActivity(listIntent);
     }
@@ -473,7 +469,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     public void drawUPA(){
 
-        for (Entry<String, ArrayList<String>> entry : data.get(0).entrySet()) {
+        for (Entry<String, ArrayList<String>> entry : data.get(UPA_DATA).entrySet()) {
 
             String upaId = entry.getKey();
             ArrayList<String> singleUPAData = entry.getValue();
@@ -484,33 +480,32 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
             LatLng upaLatLong = new LatLng(upaLat, upaLong);
             mMap.addMarker(new MarkerOptions()
-                    .title("upa")
+                    .title(Constants.UPA)
                     .position(upaLatLong)
                     .snippet(upaId)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-           // mMap.moveCamera(CameraUpdateFactory.newLatLng(upaLatLong));
 
         }
 
     }
 
     public void drawPH(){
-        for (Entry<String, ArrayList<String>> entry : data.get(1).entrySet()) {
+        for (Entry<String, ArrayList<String>> entry : data.get(PH_DATA).entrySet()) {
 
             String phBRId = entry.getKey();
-            ArrayList<String> singlephBRData = entry.getValue();
+            ArrayList<String> singlePhBRData = entry.getValue();
 
 
-            Float upaLat = Float.valueOf(singlephBRData.get(7));
-            Float upaLong = Float.valueOf(singlephBRData.get(8));
+            Float upaLat = Float.valueOf(singlePhBRData.get(7));
+            Float upaLong = Float.valueOf(singlePhBRData.get(8));
 
             LatLng phBRLatLong = new LatLng(upaLat, upaLong);
             mMap.addMarker(new MarkerOptions()
-                    .title("phbrasil")
+                    .title(Constants.PH)
                     .position(phBRLatLong)
                     .snippet(phBRId)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-            //mMap.moveCamera(CameraUpdateFactory.newLatLng(phBRLatLong));
+
 
         }
     }
@@ -518,7 +513,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     public class AccessDataBase extends AsyncTask<Location, String, ArrayList<HashMap<String, ArrayList<String>>>>{
 
 
-        //private ProgressDialog dialog;
 
         public AccessDataBase() {
 
@@ -526,12 +520,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
         @Override
         protected void onPreExecute() {
-//            dialog = new ProgressDialog(MapsActivity.this);
-//            dialog.setTitle("Carregando os dados");
-//            dialog.setMessage("Por favor, aguarde...");
-//            dialog.setCancelable(false);
-//            dialog.setIcon(android.R.drawable.ic_dialog_info);
-//            dialog.show();
+
         }
 
         @Override
