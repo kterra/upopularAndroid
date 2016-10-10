@@ -17,17 +17,18 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.List;
 import java.util.Map;
 
-public class HealthPlaceFragmentList extends Fragment {
+public abstract class HealthPlaceFragmentList extends Fragment {
 
     private RecyclerView healthPlaceRecyclerView;
     private HealthPlaceRecyclerAdapter healthAdapter;
     //private Map<String, List<String>> healthData;
     //private LatLng currentLatLng;
 
-    private HealthDataHolder myDataHolder;
+    protected HealthDataHolder myDataHolder;
 
     public interface HealthDataHolder {
-        public Map<String, List<String>> uploadData();
+        public Map<String, List<String>> uploadUpaData();
+        public Map<String, List<String>> uploadPHBrasilData();
         public LatLng uploadLatLng();
     }
 
@@ -45,11 +46,6 @@ public class HealthPlaceFragmentList extends Fragment {
         return view;
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setData(myDataHolder.uploadData(), myDataHolder.uploadLatLng());
-    }
 
     public void setData(Map<String, List<String>> data, LatLng latLng){
         //healthData = data;

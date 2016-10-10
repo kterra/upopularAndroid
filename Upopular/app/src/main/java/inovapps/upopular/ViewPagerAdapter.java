@@ -16,8 +16,8 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     // Tab Titles
     private String tabtitles[] = new String[] { "UPAs", "Farmácias"};
-    private HealthPlaceFragmentList upaFragment;
-    private HealthPlaceFragmentList phFragment;
+    private UPAFragmentList upaFragment;
+    private PHBrasilFragmentList phFragment;
 
 
     public ViewPagerAdapter(FragmentManager fm) {
@@ -42,12 +42,12 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         switch (position) {
             // Open HealthPlaceFragmentList.java
             case 0:
-                upaFragment = new HealthPlaceFragmentList();
+                upaFragment = new UPAFragmentList();
                 return upaFragment;
 
             // Open FragmentTab2.java
             case 1:
-                phFragment = new HealthPlaceFragmentList();
+                phFragment = new PHBrasilFragmentList();
                 return phFragment;
         }
         return null;

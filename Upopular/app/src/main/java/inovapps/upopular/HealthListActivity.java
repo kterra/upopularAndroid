@@ -97,8 +97,13 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
     }
 
     @Override
-    public Map<String, List<String>> uploadData() {
+    public Map<String, List<String>> uploadUpaData() {
         return upaData;
+    }
+
+    @Override
+    public Map<String, List<String>> uploadPHBrasilData() {
+        return phData;
     }
 
     @Override

@@ -33,16 +33,14 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         //address
         public static final int STREET = 1;
         public static final int NUMBER = 2;//
-        //public static final int COMPLEMENT = 0;
-        public static final int DISTRICT = 3;//
-        public static final int CITY = 4;
-        public static final int STATE = 5;
-
-        public static final int LAT = 6;
-        public static final int LONG = 7;
-        public static final int PORT = 8;//
-        public static final int PHONE = 9;//
-
+        public static final int DISTRICT = 3;
+        public static final int CEP = 4;
+        public static final int CITY = 5;
+        public static final int STATE = 6;
+        public static final int LAT = 7;
+        public static final int LONG = 8;
+        public static final int PORT = 9;
+        public static final int PHONE = 10;
     }
 
     private Context context;
@@ -97,26 +95,6 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
                 return (int) (lhsDist - rhsDist);
             }
         });
-    }
-
-    HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius){
-        context = c;
-        userLocation = location;
-        radius = searchRadius*1000;
-
-        placeList = new ArrayList<List<String>>();
-        nearestKeys = new ArrayList<String>();
-
-
-        loadData();
-        //loaddata on background
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-                loadData();
-            }
-        });*/
-
     }
 
     @Override
@@ -224,41 +202,6 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         });
     }
 
-    /*public void populateViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder viewHolder, final HealthPlace place, int position){
-        viewHolder.healthPlaceName.setText(place.getName());
-        viewHolder.address.setText(place.getFullAddress());
-        // double distance = Utils.distance(userLocation, place.getAddress().getLocation());
-        //TODO: deal with it!
-        double distance = 7.777;
-        DecimalFormat df2 = new DecimalFormat( "#,###,###,##0.00" );
-        viewHolder.distance.setText(df2.format(distance));
-
-
-        viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent detailsIntent = new Intent(context, DetailsActivity.class);
-                detailsIntent.putExtra("tipo", place.getType());
-                detailsIntent.putExtra("nome", place.getName());
-
-                // Address
-                detailsIntent.putExtra("logradouro", place.getStreet());
-                detailsIntent.putExtra("bairro", place.getDistrict());
-                detailsIntent.putExtra("cidade", place.getCity());
-                detailsIntent.putExtra("estado", place.getState());
-
-                context.startActivity(detailsIntent);
-            }
-        });
-    }
-*/
-
-    private void loadData(){
-        placeList.add(Arrays.asList("UPA Sãens Peña", "Rua Conde de Bonfim", "330", "Tijuca", "Rio de Janeiro", "RJ", null, null, "1", "(21) 2222-3333"));
-        placeList.add(Arrays.asList("UPA Botafogo", "Rua São Clemente", "227", "Botafogo", "Rio de Janeiro", "RJ", null, null, "3", "(21) 3333-4444"));
-    }
-
     public void setPlaceList(List<List<String>> placeList) {
         this.placeList = placeList;
         notifyDataSetChanged();
@@ -267,41 +210,6 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
     public void setRadius(double radius) {
         this.radius = radius*1000;
     }
-
-
-    /* private void loadData(){
-        InputStream inputStream = context.getResources().openRawResource(R.raw.upa_funcionamento_latlng);
-        CSVReader csvFile = new  CSVReader (inputStream);
-        HashMap<String, String[]> currentData = csvFile.read();
-
-        //Check for all keys near location
-        for(Map.Entry<String, String[]> entry : currentData.entrySet()) {
-            String key = entry.getKey();
-            String[] value = entry.getValue();
-            double latitude = Double.parseDouble(value[0]);
-            double longitude = Double.parseDouble(value[1]);
-
-            if (Utils.distance(latitude, longitude, userLocation.latitude, userLocation.longitude) < radius){
-                nearestKeys.add(key);
-            }
-        }
-
-        inputStream = context.getResources().openRawResource(R.raw.upa_funcionamento);
-        csvFile = new  CSVReader (inputStream);
-        currentData = csvFile.read();
-
-        for (String key: nearestKeys) {
-            String[] values = currentData.get(key);
-            placeList.add(new HealthPlace(values[1], values[2], "23456-7890"));
-            notifyItemInserted(placeList.size() - 1);
-        }
-
-    }*/
-
-
-    /*public void loadMore(){
-        //TODO: write after data model specification
-    }*/
 }
 
 

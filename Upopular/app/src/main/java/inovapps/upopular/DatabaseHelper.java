@@ -82,10 +82,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String PHBRASIL_COLUMN_ID = "gid";
     public static final String PHBRASIL_COLUMN_CEP = "nu_cep_farmacia";
     public static final String PHBRASIL_COLUMN_ADDRESS = "ds_endereco_farmacia";
+    public static final String PHBRASIL_COLUMN_NUMBER = "";
+    public static final String PHBRASIL_COLUMN_DISTRICT = "";
     public static final String PHBRASIL_COLUMN_CITY = "cidade";
     public static final String PHBRASIL_COLUMN_STATE = "uf";
     public static final String PHBRASIL_COLUMN_LAT = "lat";
     public static final String PHBRASIL_COLUMN_LONG = "long";
+    public static final String PHBRASIL_COLUMN_PORTE = "";
+    public static final String PHBRASIL_COLUMN_PHONE = "";
     public static final String PHBRASIL_TABLE_CREATE = "create table " + PHBRASIL_TABLE_NAME + " " +
             "("
             + PHBRASIL_COLUMN_ID + " integer, "
@@ -95,16 +99,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + PHBRASIL_COLUMN_ADDRESS + " text, "
             + PHBRASIL_COLUMN_LAT + " double, "
             + PHBRASIL_COLUMN_LONG + " double) ";
-    public static final String PHBRASIL_VIRTUAL_CREATE = "create virtual table " + PHBRASIL_TABLE_NAME +
-            " using fts4(" +
-            "("
-            + PHBRASIL_COLUMN_ID + " integer, "
-            + PHBRASIL_COLUMN_CEP + " text, "
-            + PHBRASIL_COLUMN_STATE + " text, "
-            + PHBRASIL_COLUMN_CITY + " text, "
-            + PHBRASIL_COLUMN_ADDRESS + " text, "
-            + PHBRASIL_COLUMN_LAT + " double, "
-            + PHBRASIL_COLUMN_LONG + " double) ";
+    public static final String PHBRASIL_VIRTUAL_CREATE = "create virtual table " + PHBRASIL_VIRTUAL_NAME +
+            " using fts4(content=" + PHBRASIL_TABLE_NAME + ", "
+            + PHBRASIL_COLUMN_CEP + ", "
+            + PHBRASIL_COLUMN_STATE + ", "
+            + PHBRASIL_COLUMN_CITY + ", "
+            + PHBRASIL_COLUMN_ADDRESS + ", "
+            + PHBRASIL_COLUMN_LAT + ", "
+            + PHBRASIL_COLUMN_LONG + ") ";
 
     public static final String VIRTUAL_PHBRASIL_TABLE_REBUILD = "INSERT INTO "
             + PHBRASIL_VIRTUAL_NAME + " (" + PHBRASIL_VIRTUAL_NAME + ") VALUES('rebuild')";
@@ -250,7 +252,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor res =  db.rawQuery( "select gid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_TABLE_NAME +
+        Cursor res =  db.rawQuery( "select gid, cep, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_TABLE_NAME +
                 " ORDER BY abs(latitude - " + CUR_lat + ") + abs(longitude - "+ CUR_lng + ") LIMIT 20;", null );
         res.moveToFirst();
 
@@ -261,6 +263,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STREET)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NUMBER)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_DISTRICT)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_CEP)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_CITY)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STATE)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_LAT)));
@@ -291,11 +294,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ArrayList<String> singlePHBRASIL = new ArrayList<>();
             singlePHBRASIL.add(PHBRASIL_NAME);
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_ADDRESS)));
+            singlePHBRASIL.add(PHBRASIL_COLUMN_NUMBER);
+            singlePHBRASIL.add(PHBRASIL_COLUMN_DISTRICT);
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_CEP)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_CITY)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_STATE)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_LAT)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_LONG)));
+            singlePHBRASIL.add(PHBRASIL_COLUMN_PORTE);
+            singlePHBRASIL.add(PHBRASIL_COLUMN_PHONE);
 
 
             phBrasilData.put(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_ID)), singlePHBRASIL);
@@ -308,10 +315,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Map<String,List<String>> upaData = new HashMap<>();
 
-        //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor res =  db.rawQuery( "select rowid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_VIRTUAL_NAME + " WHERE " + UPAS_VIRTUAL_NAME + " MATCH '" + query + "'" +
+        Cursor res =  db.rawQuery( "select rowid, cep, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_VIRTUAL_NAME + " WHERE " + UPAS_VIRTUAL_NAME + " MATCH '" + query + "'" +
                 " ORDER BY abs(latitude - " + currentPos.latitude + ") + abs(longitude - "+ currentPos.longitude + ") LIMIT 20;", null );
         res.moveToFirst();
 
@@ -321,6 +327,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STREET)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_NUMBER)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_DISTRICT)));
+            singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_CEP)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_CITY)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_STATE)));
             singleUPA.add(res.getString(res.getColumnIndex(UPAS_COLUMN_LAT)));
@@ -342,20 +349,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor res =  db.rawQuery( "select rowid, ds_endereco_farmacia, nu_cep_farmacia, cidade, uf, lat, long from "+ PHBRASIL_TABLE_NAME +
-                " ORDER BY abs(latitude - " + currentPos.latitude + ") + abs(longitude - "+ currentPos.longitude + ") LIMIT 20;", null );
+        Cursor res =  db.rawQuery( "select rowid, ds_endereco_farmacia, nu_cep_farmacia, cidade, uf, lat, long from "+ PHBRASIL_VIRTUAL_NAME + " WHERE " + PHBRASIL_VIRTUAL_NAME + " MATCH '" + query + "'" +
+                " ORDER BY abs(lat - " + currentPos.latitude + ") + abs(long - "+ currentPos.longitude + ") LIMIT 20;", null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
             ArrayList<String> singlePHBRASIL = new ArrayList<>();
             singlePHBRASIL.add(PHBRASIL_NAME);
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_ADDRESS)));
+            singlePHBRASIL.add(PHBRASIL_COLUMN_NUMBER);
+            singlePHBRASIL.add(PHBRASIL_COLUMN_DISTRICT);
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_CEP)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_CITY)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_STATE)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_LAT)));
             singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_LONG)));
-
+            singlePHBRASIL.add(PHBRASIL_COLUMN_PORTE);
+            singlePHBRASIL.add(PHBRASIL_COLUMN_PHONE);
 
             phBrasilData.put(res.getString(res.getColumnIndex("rowid")), singlePHBRASIL);
             res.moveToNext();
