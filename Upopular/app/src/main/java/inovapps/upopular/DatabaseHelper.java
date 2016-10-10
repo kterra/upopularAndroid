@@ -95,6 +95,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + PHBRASIL_COLUMN_ADDRESS + " text, "
             + PHBRASIL_COLUMN_LAT + " double, "
             + PHBRASIL_COLUMN_LONG + " double) ";
+    public static final String PHBRASIL_VIRTUAL_CREATE = "create virtual table " + PHBRASIL_TABLE_NAME +
+            " using fts4(" +
+            "("
+            + PHBRASIL_COLUMN_ID + " integer, "
+            + PHBRASIL_COLUMN_CEP + " text, "
+            + PHBRASIL_COLUMN_STATE + " text, "
+            + PHBRASIL_COLUMN_CITY + " text, "
+            + PHBRASIL_COLUMN_ADDRESS + " text, "
+            + PHBRASIL_COLUMN_LAT + " double, "
+            + PHBRASIL_COLUMN_LONG + " double) ";
+
     public static final String VIRTUAL_PHBRASIL_TABLE_REBUILD = "INSERT INTO "
             + PHBRASIL_VIRTUAL_NAME + " (" + PHBRASIL_VIRTUAL_NAME + ") VALUES('rebuild')";
     public  InputStream inputUPAStream;
@@ -118,6 +129,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertUPAData(inputUPAStream, db);
 
         db.execSQL(PHBRASIL_TABLE_CREATE);
+        Log.e(TAG, "Criando a tabela: " + PHBRASIL_VIRTUAL_NAME);
+        db.execSQL(PHBRASIL_VIRTUAL_CREATE);
         insertPHData(inputPHStream, db);
     }
 
