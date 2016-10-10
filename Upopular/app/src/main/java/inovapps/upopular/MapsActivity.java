@@ -302,31 +302,25 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         if (kind.equals("upa")) {
 
             intent.putExtra("tipo", "UPA");
-            intent.putExtra("nome", clickedInfo.get(0));
             intent.putExtra("logradouro", clickedInfo.get(1) + ", " + clickedInfo.get(2));
-            intent.putExtra("bairro", clickedInfo.get(3));
-            intent.putExtra("cidade", clickedInfo.get(4));
-            intent.putExtra("estado", clickedInfo.get(5));
-            intent.putExtra("lat", clickedInfo.get(6));
-            intent.putExtra("long", clickedInfo.get(7));
-            intent.putExtra("porte", clickedInfo.get(8));
-            intent.putExtra("telefone", clickedInfo.get(9));
-
 
         }
 
         if (kind.equals("phbrasil")) {
 
             intent.putExtra("tipo", "phbrasil");
-            intent.putExtra("nome", clickedInfo.get(0));
-            intent.putExtra("logradouro", clickedInfo.get(1) + ", " + clickedInfo.get(2));
-            intent.putExtra("cidade", clickedInfo.get(3));
-            intent.putExtra("estado", clickedInfo.get(4));
-            intent.putExtra("lat", clickedInfo.get(5));
-            intent.putExtra("long", clickedInfo.get(6));
-
+            intent.putExtra("logradouro", clickedInfo.get(1));
 
         }
+        intent.putExtra("nome", clickedInfo.get(0));
+        intent.putExtra("bairro", clickedInfo.get(3));
+        intent.putExtra("cep", clickedInfo.get(4));
+        intent.putExtra("cidade", clickedInfo.get(5));
+        intent.putExtra("estado", clickedInfo.get(6));
+        intent.putExtra("lat", clickedInfo.get(7));
+        intent.putExtra("long", clickedInfo.get(8));
+        intent.putExtra("porte", clickedInfo.get(9));
+        intent.putExtra("telefone", clickedInfo.get(10));
 
         startActivity(intent);
 
@@ -389,8 +383,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
             ArrayList<String> singleUPAData = entry.getValue();
 
 
-            Float upaLat = Float.valueOf(singleUPAData.get(6));
-            Float upaLong = Float.valueOf(singleUPAData.get(7));
+            Float upaLat = Float.valueOf(singleUPAData.get(7));
+            Float upaLong = Float.valueOf(singleUPAData.get(8));
 
             LatLng upaLatLong = new LatLng(upaLat, upaLong);
             mMap.addMarker(new MarkerOptions()
@@ -411,8 +405,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
             ArrayList<String> singlephBRData = entry.getValue();
 
 
-            Float upaLat = Float.valueOf(singlephBRData.get(5));
-            Float upaLong = Float.valueOf(singlephBRData.get(6));
+            Float upaLat = Float.valueOf(singlephBRData.get(7));
+            Float upaLong = Float.valueOf(singlephBRData.get(8));
 
             LatLng phBRLatLong = new LatLng(upaLat, upaLong);
             mMap.addMarker(new MarkerOptions()
