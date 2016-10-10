@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -191,7 +193,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String[] columns = line.split(",");
                 if(!(columns[0].compareTo("gid")==0)){
                     ContentValues cv = new ContentValues();
-                    cv.put(PHBRASIL_COLUMN_ID, Integer.valueOf(columns[0].trim().replace("\"","")));
+                    cv.put(PHBRASIL_COLUMN_ID, Integer.valueOf(columns[0].trim().replace("\"", "")));
                     cv.put(PHBRASIL_COLUMN_ADDRESS, columns[5].trim().replace("\"", ""));
                     cv.put(PHBRASIL_COLUMN_CEP, columns[6].trim().replace("\"", ""));
                     cv.put(PHBRASIL_COLUMN_STATE, columns[7].trim().replace("\"", ""));
@@ -199,7 +201,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
                     double latitude = Double.valueOf(columns[1].trim().replace("\"", ""));
-                    double longitude = Double.valueOf(columns[2].trim().replace("\"",""));
+                    double longitude = Double.valueOf(columns[2].trim().replace("\"", ""));
 
                     cv.put(PHBRASIL_COLUMN_LAT, latitude);
                     cv.put(PHBRASIL_COLUMN_LONG, longitude);
@@ -285,7 +287,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return phBrasilData;
     }
 
-    public Map<String, List<String>> getUpaByQuery(String query){
+    public Map<String, List<String>> getUpaByQuery(String query, LatLng currentPos){
 
         Map<String,List<String>> upaData = new HashMap<>();
 
@@ -293,7 +295,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor res =  db.rawQuery( "select rowid, nome_fantasia, logradouro, numero, bairro, cidade, estado, latitude, longitude, porte, telefone from "+ UPAS_VIRTUAL_NAME + " WHERE " + UPAS_VIRTUAL_NAME + " MATCH '" + query + "'" +
-                " ORDER BY abs(latitude) + abs(longitude) LIMIT 50;", null );
+                " ORDER BY abs(lat - " + currentPos.latitude + ") + abs(long - "+ currentPos.longitude + ") LIMIT 20;", null );
         res.moveToFirst();
 
         while(res.isAfterLast() == false){
@@ -313,6 +315,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             res.moveToNext();
         }
         return upaData;
+    }
+
+
+    public Map<String, List<String>> getPHByQuery(String query, LatLng currentPos){
+
+        Map<String, List<String>> phBrasilData = new HashMap<>();
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor res =  db.rawQuery( "select rowid, ds_endereco_farmacia, nu_cep_farmacia, cidade, uf, lat, long from "+ PHBRASIL_TABLE_NAME +
+                " ORDER BY abs(lat - " + currentPos.latitude + ") + abs(long - "+ currentPos.longitude + ") LIMIT 20;", null );
+        res.moveToFirst();
+
+        while(res.isAfterLast() == false){
+            ArrayList<String> singlePHBRASIL = new ArrayList<>();
+            singlePHBRASIL.add(PHBRASIL_NAME);
+            singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_ADDRESS)));
+            singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_CEP)));
+            singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_CITY)));
+            singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_STATE)));
+            singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_LAT)));
+            singlePHBRASIL.add(res.getString(res.getColumnIndex(PHBRASIL_COLUMN_LONG)));
+
+
+            phBrasilData.put(res.getString(res.getColumnIndex("rowid")), singlePHBRASIL);
+            res.moveToNext();
+        }
+        return phBrasilData;
     }
 
 //

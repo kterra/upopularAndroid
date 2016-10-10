@@ -153,11 +153,14 @@ public class HealthListActivity extends AppCompatActivity implements UPAFragment
 //            double currentSinLng = Math.sin(MathUtil.deg2rad(currentLng));
 
             // double cos_allowed_distance = Math.cos(20.0 / 6371);
+            List<Map<String, List<String>>> data = new ArrayList<Map<String, List<String>>>();
             DatabaseHelper dbHelper = new DatabaseHelper(HealthListActivity.this);
-            upaData = dbHelper.getUpaByQuery(params[0]);
-            //phData = dbHelper.getPHByQuery(params[0]);
+            upaData = dbHelper.getUpaByQuery(params[0], userLatLng);
+            phData = dbHelper.getPHByQuery(params[0], userLatLng);
 
-            return upaData;
+            data.add(upaData);
+            data.add(phData);
+            return data;
         }
 
         protected void onPostExecute(List<Map<String, List<String>>> data) {
