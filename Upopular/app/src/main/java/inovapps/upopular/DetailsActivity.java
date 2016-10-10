@@ -41,7 +41,7 @@ public class DetailsActivity extends AppCompatActivity {
                 nameField.setText(Constants.UPA);
             }
             if(kind.equals(Constants.PH)){
-                nameField.setText(Constants.UPA);
+                nameField.setText("FARMÁCIA POPULAR");
             }
 
         }else{

@@ -67,7 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private static final double BRASILIA_LATITUDE = -15.7217174;
     private static final double BRASILIA_LONGITUDE = -48.0783226;
     private static final float MAP_MIN_ZOOM = 10.0f;
-    private static final float MAP_MAX_ZOOM = 11.0f;
+    private static final float MAP_MAX_ZOOM = 12.0f;
 
 
 
