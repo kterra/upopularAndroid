@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    String kind, name, street, district, city, state, latitude, longitude, porte, telefone;
+    String kind, name, street, district, city, state, latitude, longitude, port, phone;
 
     private static final String UNKNOWN_DATA = "Não informado";
 
@@ -24,20 +24,23 @@ public class DetailsActivity extends AppCompatActivity {
         //setSupportActionBar(toolbar);
 
         Intent intent = getIntent();
-        kind = intent.getStringExtra("tipo");
-        name = intent.getStringExtra("nome");
-        street = intent.getStringExtra("logradouro");
-        district = intent.getStringExtra("bairro");
-        city =  intent.getStringExtra("cidade");
-        state = intent.getStringExtra("estado");
-        latitude = intent.getStringExtra("lat");
-        longitude = intent.getStringExtra("long");
-        porte = intent.getStringExtra("porte");
-        telefone = intent.getStringExtra("telefone");
+        kind = intent.getStringExtra(Constants.KIND);
+        name = intent.getStringExtra(Constants.NAME);
+        street = intent.getStringExtra(Constants.STREET);
+        district = intent.getStringExtra(Constants.DISTRICT);
+        city =  intent.getStringExtra(Constants.CITY);
+        state = intent.getStringExtra(Constants.STATE);
+        latitude = intent.getStringExtra(Constants.LATITUDE);
+        longitude = intent.getStringExtra(Constants.LONGITUDE);
+        port = intent.getStringExtra(Constants.PORT);
+        phone = intent.getStringExtra(Constants.PHONE);
 
         TextView nameField = (TextView) findViewById(R.id.title);
-        if(name.isEmpty()){
+        if(name == null || name.isEmpty()){
             if(kind.equals(Constants.UPA)){
+                nameField.setText(Constants.UPA);
+            }
+            if(kind.equals(Constants.PH)){
                 nameField.setText(Constants.UPA);
             }
 
@@ -83,7 +86,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         TextView porteField = (TextView) findViewById(R.id.porte);
         LinearLayoutCompat porteLayout = (LinearLayoutCompat) findViewById(R.id.porte_layout);
-        if(porte == null || porte.isEmpty()){
+        if(port == null || port.isEmpty()){
             if (kind.equals(Constants.PH)){
                 porteLayout.setVisibility(View.GONE);
             }else{
@@ -91,16 +94,16 @@ public class DetailsActivity extends AppCompatActivity {
             }
 
         }else {
-            porteField.setText(porte);
+            porteField.setText(port);
         }
 
         Button callButton = (Button)findViewById(R.id.callbutton);
-        if(telefone == null || telefone.isEmpty()) {
+        if(phone == null || phone.isEmpty()) {
             callButton.setVisibility(View.GONE);
         }
         else{
             callButton.setVisibility(View.VISIBLE);
-            callButton.setText(telefone);
+            callButton.setText(phone);
         }
 
 
@@ -108,7 +111,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     public void callPlace(View button){
 
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + telefone));
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
         startActivity(intent);
 
     }
