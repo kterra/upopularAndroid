@@ -21,8 +21,6 @@ public abstract class HealthPlaceFragmentList extends Fragment {
 
     private RecyclerView healthPlaceRecyclerView;
     private HealthPlaceRecyclerAdapter healthAdapter;
-    //private Map<String, List<String>> healthData;
-    //private LatLng currentLatLng;
 
     protected HealthDataHolder myDataHolder;
 

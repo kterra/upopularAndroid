@@ -59,7 +59,7 @@ tools:context="inovapps.upopular.MapsActivity" >
         android:paddingLeft="60dp"
         android:paddingRight="60dp"
         android:layout_weight="1"
-        android:onClick="hideOrUnhideUPA"
+        android:onClick="ToggleUPA"
         />
     <View
         android:layout_width="1dip"
@@ -78,7 +78,7 @@ tools:context="inovapps.upopular.MapsActivity" >
         android:background="@color/colorPrimary"
         android:textColor="@color/orange"
         android:layout_weight="1"
-        android:onClick="hideOrUnhidePH"
+        android:onClick="TogglePH"
          />
 
 

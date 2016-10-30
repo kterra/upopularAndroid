@@ -5,16 +5,12 @@ package inovapps.upopular;
  * Copied from geofire-java (MIT-License): https://github.com/firebase/geofire-java/blob/master/src/main/java/com/firebase/geofire/util/Constants.java
  */
 public class Constants {
-
     // Length of a degree latitude at the equator
     public static final double METERS_PER_DEGREE_LATITUDE = 110574;
-
     // The equatorial circumference of the earth in meters
     public static final double EARTH_MERIDIONAL_CIRCUMFERENCE = 40007860;
-
     // The equatorial radius of the earth in meters
     public static final double EARTH_EQ_RADIUS = 6378137;
-
     // The meridional radius of the earth in meters
     public static final double EARTH_POLAR_RADIUS = 6357852.3;
 
@@ -29,7 +25,6 @@ public class Constants {
 
     // Cutoff for floating point calculations
     public static final double EPSILON = 1e-12;
-
 
     public static  final String UPA = "UPA";
     public static  final String PH = "PH";
@@ -61,6 +56,4 @@ public class Constants {
     public static final int LONG_INDEX = 8;
     public static final int PORT_INDEX = 9;
     public static final int PHONE_INDEX = 10;
-
-
 }

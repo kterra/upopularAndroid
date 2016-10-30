@@ -70,7 +70,6 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         searchView.setSubmitButtonEnabled(true);
-
         //super.onCreateOptionsMenu(menu, inflater);
 
         return true;
@@ -113,7 +112,6 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
 
     public class AccessDataBaseList extends AsyncTask<String, String, List<Map<String, List<String>>>> {
 
-        //private ProgressDialog dialog;
         private ProgressBar progressBar;
 
         @Override
@@ -125,10 +123,6 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
 
         @Override
         protected List<Map<String, List<String>>> doInBackground(String... params) {
-//            double currentCosLng = Math.cos(MathUtil.deg2rad(currentLng));
-//            double currentSinLng = Math.sin(MathUtil.deg2rad(currentLng));
-
-            // double cos_allowed_distance = Math.cos(20.0 / 6371);
             List<Map<String, List<String>>> data = new ArrayList<Map<String, List<String>>>();
             DatabaseHelper dbHelper = new DatabaseHelper(HealthListActivity.this);
             upaData = dbHelper.getUpaByQuery(params[0], userLatLng);

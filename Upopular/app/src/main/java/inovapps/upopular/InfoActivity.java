@@ -17,9 +17,6 @@ public class InfoActivity extends AppCompatActivity {
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         toolbar.setTitle("Tipos de UPA");
-
-
-
     }
 
 }

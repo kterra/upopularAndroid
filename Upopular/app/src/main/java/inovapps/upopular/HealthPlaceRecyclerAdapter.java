@@ -27,7 +27,6 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
 
 
     private Context context;
-    //private List<HealthPlace> placeList;
     private List<List<String>> placeList;
     private List<String> nearestKeys;
     private LatLng userLocation;
@@ -166,18 +165,33 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
             public void onClick(View v) {
 
                 Intent detailsIntent = new Intent(context, DetailsActivity.class);
-                detailsIntent.putExtra("tipo", "UPA");
-                detailsIntent.putExtra("nome", place.get(Constants.NAME_INDEX));
+                String kind = place.get(Constants.PORT_INDEX).isEmpty() ? Constants.PH : Constants.UPA;
+
+                detailsIntent.putExtra(Constants.KIND, kind);
+
+                detailsIntent.putExtra(Constants.NAME, place.get(Constants.NAME_INDEX));
 
                 // Address
-                detailsIntent.putExtra("logradouro", place.get(Constants.STREET_INDEX)+ ", " + place.get(Constants.NUMBER_INDEX));
-                detailsIntent.putExtra("bairro", place.get(Constants.DISTRICT_INDEX));
-                detailsIntent.putExtra("cidade", place.get(Constants.CITY_INDEX));
-                detailsIntent.putExtra("estado", place.get(Constants.STATE_INDEX));
-                detailsIntent.putExtra("porte", place.get(Constants.PORT_INDEX));
-                detailsIntent.putExtra("telefone", place.get(Constants.PHONE_INDEX));
-                detailsIntent.putExtra("lat", place.get(Constants.LAT_INDEX));
-                detailsIntent.putExtra("long", place.get(Constants.LONG_INDEX));
+                if (place.get(Constants.NUMBER_INDEX) != null && !place.get(Constants.NUMBER_INDEX).isEmpty()){
+                    detailsIntent.putExtra(Constants.STREET, place.get(Constants.STREET_INDEX)+ ", " + place.get(Constants.NUMBER_INDEX));
+                }
+                else {
+                    detailsIntent.putExtra(Constants.STREET, place.get(Constants.STREET_INDEX));
+                }
+
+                detailsIntent.putExtra(Constants.DISTRICT, place.get(Constants.DISTRICT_INDEX));
+                detailsIntent.putExtra(Constants.CITY, place.get(Constants.CITY_INDEX));
+                detailsIntent.putExtra(Constants.STATE, place.get(Constants.STATE_INDEX));
+
+                detailsIntent.putExtra(Constants.LATITUDE, place.get(Constants.LAT_INDEX));
+                detailsIntent.putExtra(Constants.LONGITUDE, place.get(Constants.LONG_INDEX));
+
+                detailsIntent.putExtra(Constants.PORT, place.get(Constants.PORT_INDEX));
+                detailsIntent.putExtra(Constants.PHONE, place.get(Constants.PHONE_INDEX));
+
+                detailsIntent.putExtra(Constants.ZIPCODE, place.get(Constants.ZIPCODE_INDEX));
+
+
 
 
                 context.startActivity(detailsIntent);

@@ -53,12 +53,15 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private HashMap<String,ArrayList<String>> phBRData;
     private ArrayList<HashMap<String,ArrayList<String>>> data;
     private ArrayList<String> clickedInfo;
-    private boolean upaSelected;
-    private boolean phSelected;
+
     private boolean userGestured;
     private DatabaseHelper dbHelper;
     private Location currentLocation;
     private GoogleApiClient googleApiClient;
+
+
+    private boolean upaSelected = true;
+    private boolean phSelected = true;
 
     private static final int PERMISSION_ACCESS_FINE_LOCATION = 1;
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
@@ -68,25 +71,18 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     private static final double BRASILIA_LONGITUDE = -48.0783226;
     private static final float MAP_MIN_ZOOM = 10.0f;
     private static final float MAP_MAX_ZOOM = 12.0f;
-
-
-
+    private final String TAG = "MAP";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-
         currentLocation = new Location("");
         currentLocation.setLatitude(BRASILIA_LATITUDE);
         currentLocation.setLongitude(BRASILIA_LONGITUDE);
 
         dbHelper = new DatabaseHelper(MapsActivity.this);
-        upaSelected= true;
-        phSelected= true;
-
-
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -102,23 +98,17 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         btnMyLocation.setLayoutParams(params);
 
 
-
-
         googleApiClient = new GoogleApiClient.Builder(this, this, this).addApi(LocationServices.API).build();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED ) {
-            Toast.makeText(this, "pedindo permissao!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Permissão de Localização!", Toast.LENGTH_SHORT).show();
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_ACCESS_FINE_LOCATION);
-
             Log.i(MapsActivity.class.getSimpleName(), "pediu permissao!");
         }else{
             gpsEnabledChecker();
         }
-
-
-
     }
 
     public void gpsEnabledChecker()
@@ -140,8 +130,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
 
-                            startLocationUpdates(locationRequest);
-
+                        startLocationUpdates(locationRequest);
                         break;
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                         // Location settings are not satisfied. But could be fixed by showing the user
@@ -185,7 +174,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -203,8 +191,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         }
     }
 
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
@@ -216,9 +202,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
                 }
 
                 break;
-
         }
-
     }
 
     public void setDefaultLocation(){
@@ -260,8 +244,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     public void onConnected(Bundle bundle) {
         Log.i(MapsActivity.class.getSimpleName(), "Connected to Google Play Services!");
 
-
-
     }
 
     @Override
@@ -276,8 +258,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     }
 
 
-
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -289,8 +269,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
-
         mMap = googleMap;
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnCameraIdleListener(this);
@@ -298,8 +276,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
 
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-
-
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
             // Use default InfoWindow frame
@@ -338,25 +314,19 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
                 TextView subtitle2 = (TextView) v.findViewById(R.id.tv_subtitle2);
                 subtitle2.setText(clickedInfo.get(Constants.CITY_INDEX) + ", " + clickedInfo.get(Constants.STATE_INDEX));
-
-
                 // Returning the view containing InfoWindow contents
                 return v;
 
             }
 
         });
-
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), MAP_MIN_ZOOM));
         new AccessDataBase().execute(currentLocation);
-
-
     }
 
 
     @Override
     public void onCameraMoveStarted(int reason) {
-
         if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
             userGestured = true;
         }
@@ -423,56 +393,112 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         startActivity(listIntent);
     }
 
-    public void hideOrUnhideUPA(View v){
-
+    public void ToggleUPA(View v){
         Button btn = (Button) v;
         if (upaSelected){
             mMap.clear();
             if(phSelected){
-                drawPH();
+                drawMarkers(Constants.PH_DATA);
             }
-
             btn.setTextColor(Color.GRAY);
             btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_local_hospital_unselected_24dp, 0, 0, 0);
             upaSelected = false;
         }else{
             upaSelected = true;
-            drawUPA();
+            drawMarkers(Constants.UPA_DATA);
             btn.setTextColor(ContextCompat.getColor(this, R.color.orange));
             btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_local_hospital_24dp, 0, 0, 0);
         }
-
     }
 
-    public void hideOrUnhidePH(View v){
-
+    public void TogglePH(View v){
         Button btn = (Button) v;
-
         if (phSelected){
             mMap.clear();
             if(upaSelected){
-                drawUPA();
+                drawMarkers(Constants.UPA_DATA);
             }
             btn.setTextColor(Color.GRAY);
             btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_local_pharmacy_unselected_24dp, 0, 0, 0);
             phSelected = false;
         }else{
             phSelected = true;
-            drawPH();
-
+            drawMarkers(Constants.PH_DATA);
             btn.setTextColor(ContextCompat.getColor(this, R.color.orange));
             btn.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_local_pharmacy_24dp, 0, 0, 0);
         }
-
     }
 
-    public void drawUPA(){
+    public void drawMarkers(int type) {
+        String markerTitle = "";
+        float color;
+        if (type == Constants.UPA_DATA){
+            markerTitle = Constants.UPA;
+            color = BitmapDescriptorFactory.HUE_BLUE;
+        } else if (type == Constants.PH_DATA) {
+            markerTitle = Constants.PH;
+            color = BitmapDescriptorFactory.HUE_ORANGE;
+        } else {
+            Log.e(TAG, "Drawing Invalid type of Data");
+            return;
+        }
+        for (Entry<String, ArrayList<String>> entry : data.get(type).entrySet()) {
+            String placeID = entry.getKey();
+            ArrayList<String> placeData = entry.getValue();
 
+            Float placeLat = Float.valueOf(placeData.get(7));
+            Float placeLong = Float.valueOf(placeData.get(8));
+
+            LatLng placeLatLong = new LatLng(placeLat, placeLong);
+            mMap.addMarker(new MarkerOptions()
+                    .title(markerTitle)
+                    .position(placeLatLong)
+                    .snippet(placeID)
+                    .icon(BitmapDescriptorFactory.defaultMarker(color)));
+        }
+    }
+
+    public class AccessDataBase extends AsyncTask<Location, String, ArrayList<HashMap<String, ArrayList<String>>>>{
+        public AccessDataBase() {}
+        @Override
+        protected void onPreExecute() {}
+        @Override
+        protected ArrayList<HashMap<String, ArrayList<String>>> doInBackground(Location... params) {
+            double currentLat = params[0].getLatitude();
+            double currentLng = params[0].getLongitude();
+
+            upaData = dbHelper.getUPAMainData(currentLat, currentLng);
+            phBRData = dbHelper.getPHMainData(currentLat, currentLng);
+            data = new ArrayList<>();
+            data.add(upaData);
+            data.add(phBRData);
+            return data;
+        }
+
+        protected void onPostExecute(ArrayList<HashMap<String, ArrayList<String>>> data) {
+            if(upaSelected){
+                drawMarkers(Constants.UPA_DATA);
+            }
+            if(phSelected){
+                drawMarkers(Constants.PH_DATA);
+            }
+//            if (dialog.isShowing()) {
+//                dialog.dismiss();
+//            }
+            if (data.size() != 0) {
+                //Toast.makeText(MapsActivity.this, data.size() + "File is built Successfully!" + "\n", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(MapsActivity.this, "File fail to build", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+}
+
+/*
+public void drawUPA(){
         for (Entry<String, ArrayList<String>> entry : data.get(Constants.UPA_DATA).entrySet()) {
-
             String upaId = entry.getKey();
             ArrayList<String> singleUPAData = entry.getValue();
-
 
             Float upaLat = Float.valueOf(singleUPAData.get(7));
             Float upaLong = Float.valueOf(singleUPAData.get(8));
@@ -483,17 +509,13 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
                     .position(upaLatLong)
                     .snippet(upaId)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-
         }
-
     }
 
     public void drawPH(){
         for (Entry<String, ArrayList<String>> entry : data.get(Constants.PH_DATA).entrySet()) {
-
             String phBRId = entry.getKey();
             ArrayList<String> singlePhBRData = entry.getValue();
-
 
             Float upaLat = Float.valueOf(singlePhBRData.get(7));
             Float upaLong = Float.valueOf(singlePhBRData.get(8));
@@ -504,71 +526,10 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
                     .position(phBRLatLong)
                     .snippet(phBRId)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-
-
         }
     }
 
-    public class AccessDataBase extends AsyncTask<Location, String, ArrayList<HashMap<String, ArrayList<String>>>>{
-
-
-
-        public AccessDataBase() {
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected ArrayList<HashMap<String, ArrayList<String>>> doInBackground(Location... params) {
-
-
-
-            double currentLat = params[0].getLatitude();
-//            double currentCosLat = Math.cos(MathUtil.deg2rad(currentLat));
-//            double currentSinLat = Math.sin(MathUtil.deg2rad(currentLat));
-
-            double currentLng = params[0].getLongitude();
-//            double currentCosLng = Math.cos(MathUtil.deg2rad(currentLng));
-//            double currentSinLng = Math.sin(MathUtil.deg2rad(currentLng));
-
-           // double cos_allowed_distance = Math.cos(20.0 / 6371);
-
-            upaData = dbHelper.getUPAMainData(currentLat, currentLng);
-            phBRData = dbHelper.getPHMainData(currentLat, currentLng);
-            data = new ArrayList<>();
-            data.add(upaData);
-            data.add(phBRData);
-
-            return data;
-        }
-
-        protected void onPostExecute(ArrayList<HashMap<String, ArrayList<String>>> data) {
-
-            if(upaSelected){
-                drawUPA();
-            }
-            if(phSelected){
-                drawPH();
-            }
-
-
-
-//            if (dialog.isShowing()) {
-//                dialog.dismiss();
-//            }
-
-            if (data.size() != 0) {
-                Toast.makeText(MapsActivity.this, data.size() + "File is built Successfully!" + "\n", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(MapsActivity.this, "File fail to build", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-}
+ */
 
 
 
