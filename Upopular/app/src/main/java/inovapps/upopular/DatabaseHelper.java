@@ -25,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public final static String TAG = "DBHELPER";
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 1    ;
     public static final String DATABASE_NAME = "Upopular.db";
 
 
@@ -90,6 +90,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + Constants.PHONE + ", "
             + Constants.LATITUDE + " double, "
             + Constants.LONGITUDE + " double) ";
+
     private static final String PH_VIRTUAL_CREATE = "create virtual table " + PH_VIRTUAL_TABLE_NAME +
             " using fts4(content=" + PH_TABLE_NAME + ", "
             + Constants.NAME + ", "
@@ -127,7 +128,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int PHBRASIL_FILE_STATE_INDEX = 7;
     private static final int PHBRASIL_FILE_CITY_INDEX = 8;
 
-    int PH_ID = 1;
+    int PH_ID = 100000;
     private static final int PH_FILE_LATIDTUDE_INDEX = 0;
     private static final int PH_FILE_LONGITUDE_INDEX = 1;
     private static final int PH_FILE_DD_INDEX = 2;
