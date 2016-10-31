@@ -58,8 +58,8 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         });
 //
         Intent srcIntent = getIntent();
-        double latitude = srcIntent.getDoubleExtra(Constants.LATITUDE, 22.3);
-        double longitude = srcIntent.getDoubleExtra(Constants.LONGITUDE, 43.3);
+        double latitude = srcIntent.getDoubleExtra(Constants.LATITUDE, MapsActivity.BRASILIA_LATITUDE);
+        double longitude = srcIntent.getDoubleExtra(Constants.LONGITUDE, MapsActivity.BRASILIA_LONGITUDE);
         userLatLng = new LatLng(latitude, longitude);
         upaData = (HashMap<String, ArrayList<String>>) srcIntent.getSerializableExtra(Constants.UPA);
         phData = (HashMap<String, ArrayList<String>>) srcIntent.getSerializableExtra(Constants.PH);

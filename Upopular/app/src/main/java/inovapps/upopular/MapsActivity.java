@@ -67,10 +67,10 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
     private static final int LOCATION_REQUEST_INTERVAL = 30000;
     private static final int LOCATION_REQUEST_FASTEST_INTERVAL = 5000;
-    private static final double BRASILIA_LATITUDE = -15.7217174;
-    private static final double BRASILIA_LONGITUDE = -48.0783226;
     private static final float MAP_MIN_ZOOM = 10.0f;
     private static final float MAP_MAX_ZOOM = 12.0f;
+    protected static final double BRASILIA_LATITUDE = -15.7217174;
+    protected static final double BRASILIA_LONGITUDE = -48.0783226;
     private final String TAG = "MAP";
 
     @Override
