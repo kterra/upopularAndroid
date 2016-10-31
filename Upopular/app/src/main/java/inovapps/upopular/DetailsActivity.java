@@ -98,6 +98,13 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         Button callButton = (Button)findViewById(R.id.callbutton);
+        callButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+                startActivity(intent);
+            }
+        });
         if(phone == null || phone.isEmpty()) {
             callButton.setVisibility(View.GONE);
         }
@@ -106,23 +113,28 @@ public class DetailsActivity extends AppCompatActivity {
             callButton.setText(phone);
         }
 
+        Button routeButton = (Button)findViewById(R.id.routeButton);
+        routeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getRoute(v);
+            }
+        });
 
     }
+    
 
+<<<<<<< HEAD
      public void callPlace(View button){
 
+=======
+    /*public void callPlace(View button){
+>>>>>>> origin/master
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
         startActivity(intent);
-
-    }
+    }*/
 
     public void getRoute(View button){
-
-
-//        String uriBegin = "geo:0,0";
-//        String query = latitude + "," + longitude + "(" + name + ")";
-//        String encodedQuery = Uri.encode(query);
-//        String uriString = uriBegin + "?q=" + encodedQuery + "&z=16" + "&mode=walk";
         String uriString = "https://maps.google.com/maps?f=d&daddr="+latitude + "," + longitude +"&mode=walking";
         Uri uri = Uri.parse(uriString);
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
