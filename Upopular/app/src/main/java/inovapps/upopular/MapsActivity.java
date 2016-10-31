@@ -94,8 +94,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) btnMyLocation.getLayoutParams(); // size of button in dp
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
         params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        params.setMargins(0, 0, 20, 350);
-        btnMyLocation.setLayoutParams(params);
+        params.setMargins(0, 0, 0, 0);
+        //btnMyLocation.setLayoutParams(params);
 
 
         googleApiClient = new GoogleApiClient.Builder(this, this, this).addApi(LocationServices.API).build();
@@ -106,6 +106,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_ACCESS_FINE_LOCATION);
             Log.i(MapsActivity.class.getSimpleName(), "pediu permissao!");
+
+            mMap.setMyLocationEnabled(true);
         }else{
             gpsEnabledChecker();
         }
@@ -157,6 +159,8 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
                 == PackageManager.PERMISSION_GRANTED ) {
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 googleApiClient, mLocationRequest, MapsActivity.this);
+
+            mMap.setMyLocationEnabled(true);
         }
     }
 
@@ -195,6 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         switch (requestCode) {
             case PERMISSION_ACCESS_FINE_LOCATION:
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
                     gpsEnabledChecker();
                 } else{
                     setDefaultLocation();

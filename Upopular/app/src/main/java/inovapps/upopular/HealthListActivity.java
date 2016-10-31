@@ -165,7 +165,7 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
             data.add(phData);
             return data;
         }
-        
+
         @Override
         protected void onPostExecute(List<HashMap<String, ArrayList<String>>> data) {
 

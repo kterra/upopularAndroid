@@ -109,7 +109,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     }
 
-    public void callPlace(View button){
+     public void callPlace(View button){
 
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
         startActivity(intent);
