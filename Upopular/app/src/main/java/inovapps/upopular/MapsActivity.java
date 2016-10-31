@@ -167,7 +167,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
     public void onLocationChanged(Location location) {
         currentLocation = location;
-        mMap.clear();
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), MAP_MAX_ZOOM));
         new AccessDataBase().execute(currentLocation);
         stopLocationUpdates();
@@ -208,7 +207,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     public void setDefaultLocation(){
         currentLocation.setLatitude(BRASILIA_LATITUDE);
         currentLocation.setLongitude(BRASILIA_LONGITUDE);
-        mMap.clear();
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), MAP_MIN_ZOOM));
         new AccessDataBase().execute(currentLocation);
     }
@@ -337,7 +335,6 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
 
         if(userGestured == true){
 
-            mMap.clear();
             currentLocation.setLatitude(mMap.getCameraPosition().target.latitude);
             currentLocation.setLongitude(mMap.getCameraPosition().target.longitude);
 
@@ -476,6 +473,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         }
 
         protected void onPostExecute(ArrayList<HashMap<String, ArrayList<String>>> data) {
+            mMap.clear();
             if(upaSelected){
                 drawMarkers(Constants.UPA_DATA);
             }

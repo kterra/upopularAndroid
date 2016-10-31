@@ -46,6 +46,13 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 //
         Intent srcIntent = getIntent();
         double latitude = srcIntent.getDoubleExtra(Constants.LATITUDE, 22.3);
@@ -134,8 +141,7 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         }
 
         protected void onPostExecute(List<Map<String, List<String>>> data) {
-            //UPAadapter = new HealthPlaceRecyclerAdapter(HealthListActivity.this, userLatLng, 100.00, data);
-            //healthPlaceRecyclerView.setAdapter(UPAadapter);
+            
             HealthListActivity.this.viewPagerAdapter.updateUPAs(data.get(0), userLatLng);
             HealthListActivity.this.viewPagerAdapter.updatePHs(data.get(1), userLatLng);
             progressBar.setVisibility(View.GONE);
