@@ -165,9 +165,10 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
             data.add(phData);
             return data;
         }
-
+        
         @Override
         protected void onPostExecute(List<HashMap<String, ArrayList<String>>> data) {
+
             HealthListActivity.this.viewPagerAdapter.updateUPAs(data.get(0), userLatLng);
             HealthListActivity.this.viewPagerAdapter.updatePHs(data.get(1), userLatLng);
             progressBar.setVisibility(View.GONE);
