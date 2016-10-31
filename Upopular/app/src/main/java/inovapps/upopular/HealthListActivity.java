@@ -20,15 +20,18 @@ import android.widget.ProgressBar;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class HealthListActivity extends AppCompatActivity implements HealthPlaceFragmentList.HealthDataHolder {
 
-    private Map<String, List<String>> upaData;
-    private Map<String, List<String>> phData;
+    private HashMap<String, ArrayList<String>> upaData;
+    private HashMap<String, ArrayList<String>> phData;
     private LatLng userLatLng;
     protected ViewPagerAdapter viewPagerAdapter;
+    private final String TAG = "HEALTHLIST";
+    private boolean searchIsActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +54,8 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         double latitude = srcIntent.getDoubleExtra(Constants.LATITUDE, 22.3);
         double longitude = srcIntent.getDoubleExtra(Constants.LONGITUDE, 43.3);
         userLatLng = new LatLng(latitude, longitude);
-        upaData = (Map<String, List<String>>) srcIntent.getSerializableExtra(Constants.UPA);
-        phData = (Map<String, List<String>>) srcIntent.getSerializableExtra(Constants.PH);
+        upaData = (HashMap<String, ArrayList<String>>) srcIntent.getSerializableExtra(Constants.UPA);
+        phData = (HashMap<String, ArrayList<String>>) srcIntent.getSerializableExtra(Constants.PH);
     }
 
     @Override
@@ -70,6 +73,22 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         searchView.setSubmitButtonEnabled(true);
+
+        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextChange(String newText) {
+                if (newText.isEmpty() && searchIsActive){
+                    searchIsActive = false;
+                    new AccessDataBaseList().execute(newText);
+                }
+                return true;
+            }
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+        };
+        searchView.setOnQueryTextListener(queryTextListener);
+
+
         //super.onCreateOptionsMenu(menu, inflater);
 
         return true;
@@ -91,17 +110,17 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
 
     private void doMySearch(String query){
         //do nothing
-        Log.d("SEARCH", query);
+        searchIsActive = true;
         new AccessDataBaseList().execute(query);
     }
 
     @Override
-    public Map<String, List<String>> uploadUpaData() {
+    public HashMap<String, ArrayList<String>> uploadUpaData() {
         return upaData;
     }
 
     @Override
-    public Map<String, List<String>> uploadPHBrasilData() {
+    public HashMap<String, ArrayList<String>> uploadPHBrasilData() {
         return phData;
     }
 
@@ -110,7 +129,7 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         return userLatLng;
     }
 
-    public class AccessDataBaseList extends AsyncTask<String, String, List<Map<String, List<String>>>> {
+    public class AccessDataBaseList extends AsyncTask<String, String, List<HashMap<String, ArrayList<String>>>> {
 
         private ProgressBar progressBar;
 
@@ -122,18 +141,25 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
         }
 
         @Override
-        protected List<Map<String, List<String>>> doInBackground(String... params) {
-            List<Map<String, List<String>>> data = new ArrayList<Map<String, List<String>>>();
+        protected List<HashMap<String, ArrayList<String>>> doInBackground(String... params) {
+            List<HashMap<String, ArrayList<String>>> data = new ArrayList<HashMap<String, ArrayList<String>>>();
             DatabaseHelper dbHelper = new DatabaseHelper(HealthListActivity.this);
-            upaData = dbHelper.getUpaByQuery(params[0], userLatLng);
-            phData = dbHelper.getPHByQuery(params[0], userLatLng);
+            String query = params[0];
+            if (query.isEmpty()){
+                upaData = dbHelper.getUPAMainData(userLatLng.latitude, userLatLng.longitude);
+                phData = dbHelper.getPHMainData(userLatLng.latitude, userLatLng.longitude);
+            }
+            else {
+                upaData = dbHelper.getUpaByQuery(query, userLatLng);
+                phData = dbHelper.getPHByQuery(query, userLatLng);
+            }
 
             data.add(upaData);
             data.add(phData);
             return data;
         }
 
-        protected void onPostExecute(List<Map<String, List<String>>> data) {
+        protected void onPostExecute(List<HashMap<String, ArrayList<String>>> data) {
             //UPAadapter = new HealthPlaceRecyclerAdapter(HealthListActivity.this, userLatLng, 100.00, data);
             //healthPlaceRecyclerView.setAdapter(UPAadapter);
             HealthListActivity.this.viewPagerAdapter.updateUPAs(data.get(0), userLatLng);

@@ -15,6 +15,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,9 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
     private List<String> nearestKeys;
     private LatLng userLocation;
     private double radius;
+    private boolean isEmpty = false;
+    private final String emptyTextTitle = "Nenhum Estabelecimento Encontrado";
+    private final String emptyTextSuggestion = "Que tal fazer uma nova busca com outros termos?";
 
     public static class HealthPlaceViewHolder extends RecyclerView.ViewHolder {
 
@@ -55,7 +59,7 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
         radius = searchRadius*1000;
     }
 
-    HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius, Map<String, List<String>> dataMap){
+    HealthPlaceRecyclerAdapter(Context c, LatLng location, double searchRadius, HashMap<String, ArrayList<String>> dataMap){
         context = c;
         userLocation = location;
         radius = searchRadius*1000;
@@ -88,17 +92,22 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
 
     @Override
     public void onBindViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder holder, int position) {
-        /*if (position >= getItemCount()-1){
-            loadMore();
-        }*/
-        //HealthPlace model = placeList.get(position);
-        List<String> data = placeList.get(position);
-        //this.populateViewHolder(holder, model, position);
-        this.populateViewHolder(holder, data, position);
+        if (isEmpty){
+            this.populateViewHolder(holder, null, position);
+        }
+        else {
+            List<String> data = placeList.get(position);
+            this.populateViewHolder(holder, data, position);
+        }
     }
 
     @Override
     public int getItemCount() {
+        if (placeList.size() == 0){
+            isEmpty = true;
+            return 1;
+        }
+        isEmpty = false;
         return placeList.size();
     }
 
@@ -141,6 +150,12 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
     }
 
     public void populateViewHolder(HealthPlaceRecyclerAdapter.HealthPlaceViewHolder viewHolder, final List<String> place, int position){
+
+        if (isEmpty){
+            viewHolder.healthPlaceName.setText(emptyTextTitle);
+            viewHolder.address.setText(emptyTextSuggestion);
+            return;
+        }
 
         viewHolder.healthPlaceName.setText(place.get(Constants.NAME_INDEX));
         viewHolder.address.setText(fullAddress(place));
@@ -190,9 +205,6 @@ public class HealthPlaceRecyclerAdapter extends RecyclerView.Adapter<HealthPlace
                 detailsIntent.putExtra(Constants.PHONE, place.get(Constants.PHONE_INDEX));
 
                 detailsIntent.putExtra(Constants.ZIPCODE, place.get(Constants.ZIPCODE_INDEX));
-
-
-
 
                 context.startActivity(detailsIntent);
             }

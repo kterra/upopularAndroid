@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,11 +26,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
-    public void updateUPAs(Map<String, List<String>> data, LatLng latLng){
+    public void updateUPAs(HashMap<String, ArrayList<String>> data, LatLng latLng){
         upaFragment.setData(data, latLng);
     }
 
-    public void updatePHs(Map<String, List<String>> data, LatLng latLng){
+    public void updatePHs(HashMap<String, ArrayList<String>> data, LatLng latLng){
         phFragment.setData(data, latLng);
     }
 

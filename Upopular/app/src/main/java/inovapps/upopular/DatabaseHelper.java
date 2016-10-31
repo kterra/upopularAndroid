@@ -249,9 +249,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return phData;
     }
 
-    public Map<String, List<String>> getUpaByQuery(String query, LatLng currentPos){
+    public HashMap<String, ArrayList<String>> getUpaByQuery(String query, LatLng currentPos){
 
-        Map<String,List<String>> upaData = new HashMap<>();
+        HashMap<String,ArrayList<String>> upaData = new HashMap<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -283,9 +283,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return upaData;
     }
 
-    public Map<String, List<String>> getPHByQuery(String query, LatLng currentPos){
+    public HashMap<String, ArrayList<String>> getPHByQuery(String query, LatLng currentPos){
 
-        Map<String, List<String>> phData = new HashMap<>();
+        HashMap<String, ArrayList<String>> phData = new HashMap<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
 
