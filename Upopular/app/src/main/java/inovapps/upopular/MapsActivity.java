@@ -169,7 +169,7 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
         currentLocation = location;
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), MAP_MAX_ZOOM));
         new AccessDataBase().execute(currentLocation);
-        stopLocationUpdates();
+
 
     }
 
@@ -222,12 +222,13 @@ public class MapsActivity extends FragmentActivity implements OnInfoWindowClickL
     @Override
     protected void onPause() {
         super.onPause();
-        //stopLocationUpdates();
+        stopLocationUpdates();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
 
         Log.d("MAIN", "ON RESUME");
     }

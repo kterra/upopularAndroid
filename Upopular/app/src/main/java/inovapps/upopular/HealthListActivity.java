@@ -166,8 +166,13 @@ public class HealthListActivity extends AppCompatActivity implements HealthPlace
             return data;
         }
 
+<<<<<<< Updated upstream
         @Override
         protected void onPostExecute(List<HashMap<String, ArrayList<String>>> data) {
+=======
+        protected void onPostExecute(List<Map<String, List<String>>> data) {
+
+>>>>>>> Stashed changes
             HealthListActivity.this.viewPagerAdapter.updateUPAs(data.get(0), userLatLng);
             HealthListActivity.this.viewPagerAdapter.updatePHs(data.get(1), userLatLng);
             progressBar.setVisibility(View.GONE);
